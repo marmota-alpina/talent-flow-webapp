@@ -83,17 +83,46 @@ O **Talent Flow** é uma plataforma digital voltada para otimizar o processo de 
 
 ## 🚀 **Instalação e Execução**
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.1.
+Este projeto foi gerado com [Angular CLI](https://github.com/angular/angular-cli) versão 20.0.1.
 
-## Development server
+### Pré-requisitos
 
-To start a local development server, run:
+- Node.js (v18 ou superior)
+- npm (v9 ou superior)
 
-```bash
-ng serve
-```
+### Passos para Instalação
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/marmota-alpina/talent-flow-webapp.git
+   cd talent-flow-webapp
+   ```
+
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+
+3. Configure o Firebase:
+   - Crie um projeto no [Firebase Console](https://console.firebase.google.com/)
+   - Copie o arquivo `src/environments/environment.example.ts` para `src/environments/environment.ts` e `src/environments/environment.development.ts`
+   - Preencha as configurações do Firebase nos arquivos de ambiente com as credenciais do seu projeto
+
+4. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm start
+   ```
+
+5. Acesse a aplicação em `http://localhost:4200/`
+
+### Estrutura do Projeto
+
+O projeto segue uma arquitetura modular com a seguinte estrutura de diretórios:
+
+- `/src/app/core`: Serviços e componentes essenciais usados em toda a aplicação
+- `/src/app/features`: Módulos de funcionalidades específicas da aplicação
+- `/src/app/models`: Interfaces e tipos de dados
+- `/src/app/shared`: Componentes, diretivas e pipes reutilizáveis
 
 ## Code scaffolding
 
