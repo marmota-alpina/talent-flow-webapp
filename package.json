@@ -6,7 +6,11 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "CHROME_BIN=brave-browser ng test",
+    "test:chrome": "CHROME_BIN=google-chrome ng test",
+    "test:chromium": "CHROME_BIN=brave-browser ng test",
+    "test:chrome-win": "set CHROME_BIN=C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe && ng test",
+    "test:chrome-mac": "CHROME_BIN=/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome ng test",
     "serve:ssr:talent-flow-webapp": "node dist/talent-flow-webapp/server/server.mjs"
   },
   "private": true,
