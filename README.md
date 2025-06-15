@@ -153,7 +153,47 @@ This will compile your project and store the build artifacts in the `dist/` dire
 To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
 
 ```bash
-ng test
+npm test
+```
+
+### Browser Configuration for Tests
+
+The test runner requires a Chrome browser. If you encounter the error "No binary for Chrome browser on your platform", you can use one of the following commands based on your operating system:
+
+- **Linux with Chromium**:
+  ```bash
+  npm run test:chromium
+  ```
+
+- **Linux with Google Chrome**:
+  ```bash
+  npm run test:chrome
+  ```
+
+- **Windows**:
+  ```bash
+  npm run test:chrome-win
+  ```
+
+- **macOS**:
+  ```bash
+  npm run test:chrome-mac
+  ```
+
+Alternatively, you can set the `CHROME_BIN` environment variable to point to your Chrome/Chromium binary before running the tests:
+
+```bash
+# Example for Linux
+export CHROME_BIN=/usr/bin/chromium
+npm test
+
+# Example for Windows (Command Prompt)
+set CHROME_BIN=C:\Program Files\Google\Chrome\Application\chrome.exe
+npm test
+
+# Example for macOS
+export CHROME_BIN="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+npm test
 ```
 
 ## Running end-to-end tests

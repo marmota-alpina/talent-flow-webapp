@@ -1,0 +1,8 @@
+/* Additional styles for the technologies component */
+/* Most styling is handled by Tailwind CSS classes in the template */
+
+/* Custom styles for the form inputs if needed */
+.form-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
