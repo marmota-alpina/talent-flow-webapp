@@ -23,7 +23,7 @@ O `talent-flow-webapp` adotará **Angular Signals** como a estratégia principal
 3. Dependências entre diferentes estados serão gerenciadas com `computed()` signals.
 4. Efeitos colaterais reativos (side effects) serão tratados com `effect()`.
 5. Esta abordagem será o padrão para gerenciar o perfil do usuário, listas de dados obtidas do Firestore e estados da UI (como `loading` e `error`).
-
+6. Uso das features novas do Angular 20 sempre que possível, NÃO fazer uso de diretivas depreciadas como *ngIf, ngFor e etc.
 ## Consequências
 
 **Positivas:**
