@@ -11,7 +11,7 @@ import {
   where,
   orderBy
 } from '@angular/fire/firestore';
-import { Observable, from, map } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { CurationItem, CurationItemStatus } from '../../models/curation-item.model';
 
 /**

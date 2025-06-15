@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, inject, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, Signal } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { BaseCurationService } from '../services/base-curation.service';
 import { CurationItem, CurationItemStatus } from '../../models/curation-item.model';
