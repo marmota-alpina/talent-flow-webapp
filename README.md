@@ -78,7 +78,7 @@ O **Talent Flow** é uma plataforma digital voltada para otimizar o processo de 
 * Monitoramento de processos assíncronos e melhorias na observabilidade.
 
 
-## Detalhes do Projeto estão no diretório `docs`
+## Detalhes do Projeto estão no diretório `doc`
 
 
 ## 🚀 **Instalação e Execução**
