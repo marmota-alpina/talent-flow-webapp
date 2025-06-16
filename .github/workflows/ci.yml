@@ -38,10 +38,9 @@ jobs:
         run: npm run lint
 
       # 5. Executar os testes unitários da aplicação em modo headless
-      # Usamos 'npm test --' para que o npm execute o script 'test' do package.json
-      # e passe os argumentos subsequentes diretamente para o Angular CLI.
+      # Usamos 'npx ng test' para executar o Angular CLI localmente e ignorar o script 'test' do package.json.
       - name: Test
-        run: npm test -- --no-watch --no-progress --browsers=ChromeHeadless
+        run: npx ng test --no-watch --no-progress --browsers=ChromeHeadless
 
       # 6. Compilar a aplicação para produção para garantir que o build não falha
       - name: Build
