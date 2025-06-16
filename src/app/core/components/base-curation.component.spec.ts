@@ -160,6 +160,7 @@ describe('BaseCurationComponent', () => {
 
   it('should create a new item', () => {
     spyOn(service, 'create').and.returnValue(of(undefined));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     spyOn(component as any, 'loadItems');
 
     component['currentItem'].set(null);
@@ -171,6 +172,7 @@ describe('BaseCurationComponent', () => {
 
   it('should update an existing item', () => {
     spyOn(service, 'update').and.returnValue(of(undefined));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     spyOn(component as any, 'loadItems');
 
     component['currentItem'].set(mockItems[0]);
@@ -182,6 +184,7 @@ describe('BaseCurationComponent', () => {
 
   it('should archive an item', () => {
     spyOn(service, 'archive').and.returnValue(of(undefined));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     spyOn(component as any, 'loadItems');
 
     component['archiveItem']('1');
@@ -192,6 +195,7 @@ describe('BaseCurationComponent', () => {
 
   it('should unarchive an item', () => {
     spyOn(service, 'unarchive').and.returnValue(of(undefined));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     spyOn(component as any, 'loadItems');
 
     component['unarchiveItem']('1');

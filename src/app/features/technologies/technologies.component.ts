@@ -1,8 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseCurationComponent } from '../../core/components/base-curation.component';
-import { TechnologiesService } from './technologies.service';
 import { Technology, TechnologyCategory } from './technology.model';
 import { CurationItemStatus } from '../../models/curation-item.model';
 
