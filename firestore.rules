@@ -1,0 +1,89 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // =================================
+    // Helper Functions
+    // =================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isRole(role) {
+      return isAuthenticated() && getUserRole() == role;
+    }
+
+    function isOneOfRoles(roles) {
+      return isAuthenticated() && getUserRole() in roles;
+    }
+
+    function isRecruiterOrAdmin() {
+      return isOneOfRoles(['recruiter', 'admin']);
+    }
+
+    // =================================
+    // Collection Rules
+    // =================================
+
+    // Rules for users collection
+    match /users/{userId} {
+      // CORREÇÃO APLICADA AQUI: Leitura permitida apenas para usuários autenticados.
+      allow read: if isAuthenticated();
+
+      // Um usuário pode criar e deletar seu próprio perfil.
+      allow create, delete: if isOwner(userId);
+
+      // Um usuário pode atualizar seu próprio perfil, mas não pode alterar seu 'role'.
+      allow update: if isOwner(userId) && request.resource.data.role == resource.data.role;
+    }
+
+    // Rules for curation collections
+    match /technologies/{documentId} {
+      allow read: if true;
+      allow write: if isRole('admin');
+    }
+
+    match /softSkills/{documentId} {
+      allow read: if true;
+      allow write: if isRole('admin');
+    }
+
+    match /experienceLevels/{documentId} {
+      allow read: if true;
+      allow write: if isRole('admin');
+    }
+
+    // Rules for vacancies collection
+    match /vacancies/{vacancyId} {
+      allow read: if true;
+      allow write: if isRecruiterOrAdmin();
+    }
+
+    // Rules for resumes collection
+    match /resumes/{resumeId} {
+      // CORREÇÃO APLICADA AQUI: SEMPRE verifique a autenticação primeiro.
+      allow read: if isAuthenticated() && (isOwner(resumeId) || isRecruiterOrAdmin());
+
+      allow write: if isOwner(resumeId);
+
+      // Rules for recommendedVacancies sub-collection
+      match /recommendedVacancies/{vacancyId} {
+        allow read: if isOwner(resumeId);
+        allow write: if false;
+      }
+    }
+
+    // Fallback Rule: Deny all access to any other collection by default.
+    match /{path=**} {
+        allow read, write: if false;
+    }
+  }
+}
