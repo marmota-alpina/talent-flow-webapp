@@ -35,11 +35,12 @@ jobs:
 
       # 4. Executar o Linter para verificar a qualidade do código
       - name: Lint
-        run: npm run ng -- lint
+        run: npm run lint
 
       # 5. Executar os testes unitários da aplicação em modo headless
+      # Chamamos 'ng test' diretamente para usar o ChromeHeadless padrão do ambiente de CI
       - name: Test
-        run: npm test -- --no-watch --no-progress --browsers=ChromeHeadless
+        run: ng test --no-watch --no-progress --browsers=ChromeHeadless
 
       # 6. Compilar a aplicação para produção para garantir que o build não falha
       - name: Build
