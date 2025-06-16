@@ -15,21 +15,23 @@
     "rewrites": [
       {
         "source": "**",
-        "destination": "/index.html"
+        "function": "server"
       }
     ]
   },
-  "apphosting": {
-    "backendId": "talent-flow-webapp",
-    "rootDir": "/",
-    "ignore": [
-      "node_modules",
-      ".git",
-      "firebase-debug.log",
-      "firebase-debug.*.log",
-      "functions"
-    ]
-  },
+  "functions": [
+    {
+      "source": "dist/talent-flow-webapp/server",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ],
+      "runtime": "nodejs20"
+    }
+  ],
   "emulators": {
     "apphosting": {
       "port": 5002,
