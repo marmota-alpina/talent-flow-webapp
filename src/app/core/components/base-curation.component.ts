@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, Signal, inject } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { BaseCurationService } from '../services/base-curation.service';
 import { CurationItem, CurationItemStatus } from '../../models/curation-item.model';
@@ -38,12 +38,9 @@ export abstract class BaseCurationComponent<T extends CurationItem> implements O
   );
 
   /**
-   * Constructor
-   * @param curationService The service to use for CRUD operations
+   * Service for CRUD operations
    */
-  constructor(protected curationService: BaseCurationService<T>) {
-    // Constructor initialization
-  }
+  protected curationService = inject(BaseCurationService<T>);
 
   /**
    * Initialize the component

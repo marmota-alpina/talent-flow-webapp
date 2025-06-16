@@ -1,0 +1,47 @@
+# .github/workflows/ci.yml
+# Nome do Workflow para Integração Contínua
+name: CI Pipeline - Lint, Test and Build
+
+# Gatilho: Este workflow será acionado em cada pull request para a branch 'main'
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Job único para construir e testar o projeto
+  build_and_test:
+    name: Build and Test
+    # O job rodará em um ambiente Ubuntu mais recente
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout do código do repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configurar o ambiente Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          # A versão 20.x é recomendada para projetos Angular recentes
+          node-version: '20'
+          # Habilitar o cache do npm para acelerar futuras instalações
+          cache: 'npm'
+
+      # 3. Instalar as dependências do projeto
+      # 'npm ci' é mais rápido e seguro para ambientes de CI do que 'npm install'
+      - name: Install Dependencies
+        run: npm ci
+
+      # 4. Executar o Linter para verificar a qualidade do código
+      - name: Lint
+        run: npm run lint
+
+      # 5. Executar os testes unitários da aplicação em modo headless
+      # Usamos 'npx ng test' para executar o Angular CLI localmente e ignorar o script 'test' do package.json.
+      - name: Test
+        run: npx ng test --no-watch --no-progress --browsers=ChromeHeadless
+
+      # 6. Compilar a aplicação para produção para garantir que o build não falha
+      - name: Build
+        run: npm run build

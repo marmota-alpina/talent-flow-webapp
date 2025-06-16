@@ -1,3 +1,4 @@
+[![CD Pipeline - Deploy to Firebase](https://github.com/marmota-alpina/talent-flow-webapp/actions/workflows/cd.yml/badge.svg)](https://github.com/marmota-alpina/talent-flow-webapp/actions/workflows/cd.yml)
 # 🎯 **Projeto Talent Flow**
 
 ## ✅ **Visão Geral**

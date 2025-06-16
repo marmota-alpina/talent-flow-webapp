@@ -1,0 +1,62 @@
+name: CD Pipeline - Deploy to Firebase
+
+# Gatilho: Este workflow será acionado a cada push (merge) na branch 'main'
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # Job único para construir e fazer o deploy
+  build_and_deploy:
+    name: Build and Deploy
+    # O job rodará em um ambiente Ubuntu mais recente
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout do código do repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configurar o ambiente Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Instalar as dependências do projeto
+      - name: Install Dependencies
+        run: npm ci
+
+      # 4. Injetar as variáveis de ambiente de produção
+      - name: Inject environment variables
+        run: |
+          echo "export const environment = {
+            production: true,
+            firebaseConfig: {
+              apiKey: '${{ secrets.PROD_FIREBASE_API_KEY }}',
+              authDomain: '${{ secrets.PROD_FIREBASE_AUTH_DOMAIN }}',
+              projectId: '${{ secrets.PROD_FIREBASE_PROJECT_ID }}',
+              storageBucket: '${{ secrets.PROD_FIREBASE_STORAGE_BUCKET }}',
+              messagingSenderId: '${{ secrets.PROD_FIREBASE_MESSAGING_SENDER_ID }}',
+              appId: '${{ secrets.PROD_FIREBASE_APP_ID }}'
+            }
+          };" > src/environments/environment.prod.ts
+
+      # 5. Compilar a aplicação para produção
+      # O Angular CLI irá substituir 'environment.ts' por 'environment.prod.ts'
+      - name: Build Application
+        run: npm run build
+
+      # 6. Fazer o deploy da aplicação para o Firebase Hosting
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.GCP_SA_KEY }}'
+          projectId: 'talentflow-1e037'
+          channelId: live
+
+      # 7. Fazer o deploy das regras do Firestore
+      - name: Deploy Firestore Rules
+        run: npx firebase-tools deploy --only firestore:rules --token "${{ secrets.FIREBASE_TOKEN }}"
