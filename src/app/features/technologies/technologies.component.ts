@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BaseCurationComponent } from '../../core/components/base-curation.component';
@@ -31,12 +31,8 @@ export class TechnologiesComponent extends BaseCurationComponent<Technology> {
     popularity: 0
   };
 
-  /**
-   * Constructor
-   * @param technologiesService The service to use for CRUD operations
-   */
-  constructor(technologiesService: TechnologiesService) {
-    super(technologiesService);
+  constructor() {
+    super();
   }
 
   /**

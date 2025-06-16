@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Firestore } from '@angular/fire/firestore';
 import { BaseCurationService } from '../../core/services/base-curation.service';
 import { Technology } from './technology.model';
 
@@ -11,14 +10,7 @@ import { Technology } from './technology.model';
   providedIn: 'root'
 })
 export class TechnologiesService extends BaseCurationService<Technology> {
-  /**
-   * Constructor
-   * @param firestore Firestore instance
-   */
-  constructor(firestore: Firestore) {
-    // Pass the collection name to the base class
-    super(firestore, 'technologies');
-  }
+  protected override readonly collectionName: string = 'technologies';
 
   // Additional technology-specific methods can be added here
 }

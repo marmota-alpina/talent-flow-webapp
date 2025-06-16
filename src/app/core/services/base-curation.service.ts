@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -22,14 +22,14 @@ import { CurationItem, CurationItemStatus } from '../../models/curation-item.mod
 export abstract class BaseCurationService<T extends CurationItem> {
 
   /**
-   * Constructor
-   * @param firestore Firestore instance
-   * @param collectionName Name of the Firestore collection
+   * Firestore instance
    */
-  constructor(
-    protected firestore: Firestore,
-    protected collectionName: string
-  ) {}
+  protected firestore: Firestore = inject(Firestore);
+
+  /**
+   * Name of the Firestore collection
+   */
+  protected abstract readonly collectionName: string;
 
   /**
    * Get all items from the collection with the specified status

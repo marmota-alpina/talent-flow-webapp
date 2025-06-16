@@ -6,6 +6,7 @@ import { BaseCurationComponent } from './base-curation.component';
 import { BaseCurationService } from '../services/base-curation.service';
 import { CurationItem, CurationItemStatus } from '../../models/curation-item.model';
 import { Firestore } from '@angular/fire/firestore';
+import { MockFirestore } from '../testing/mock-firestore';
 
 // Mock data
 const mockItems: CurationItem[] = [
@@ -17,9 +18,7 @@ const mockItems: CurationItem[] = [
 // Mock service
 @Injectable()
 class MockCurationService extends BaseCurationService<CurationItem> {
-  constructor() {
-    super({} as Firestore, 'test-collection');
-  }
+  protected override readonly collectionName: string = 'test-collection';
 
   override getAll(): Observable<CurationItem[]> {
     return of(mockItems);
@@ -97,7 +96,8 @@ describe('BaseCurationComponent', () => {
       imports: [TestCurationComponent],
       providers: [
         provideZonelessChangeDetection(),
-        { provide: BaseCurationService, useClass: MockCurationService }
+        { provide: BaseCurationService, useClass: MockCurationService },
+        { provide: Firestore, useClass: MockFirestore }
       ]
     }).compileComponents();
 
@@ -160,7 +160,7 @@ describe('BaseCurationComponent', () => {
 
   it('should create a new item', () => {
     spyOn(service, 'create').and.returnValue(of(undefined));
-    spyOn(component, 'loadItems' as any);
+    spyOn(component as any, 'loadItems');
 
     component['currentItem'].set(null);
     component['saveItem']({ name: 'New Item' });
@@ -171,7 +171,7 @@ describe('BaseCurationComponent', () => {
 
   it('should update an existing item', () => {
     spyOn(service, 'update').and.returnValue(of(undefined));
-    spyOn(component, 'loadItems' as any);
+    spyOn(component as any, 'loadItems');
 
     component['currentItem'].set(mockItems[0]);
     component['saveItem']({ name: 'Updated Item' });
@@ -182,7 +182,7 @@ describe('BaseCurationComponent', () => {
 
   it('should archive an item', () => {
     spyOn(service, 'archive').and.returnValue(of(undefined));
-    spyOn(component, 'loadItems' as any);
+    spyOn(component as any, 'loadItems');
 
     component['archiveItem']('1');
 
@@ -192,7 +192,7 @@ describe('BaseCurationComponent', () => {
 
   it('should unarchive an item', () => {
     spyOn(service, 'unarchive').and.returnValue(of(undefined));
-    spyOn(component, 'loadItems' as any);
+    spyOn(component as any, 'loadItems');
 
     component['unarchiveItem']('1');
 
