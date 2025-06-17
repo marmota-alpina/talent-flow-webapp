@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 
@@ -8,7 +8,6 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
  */
 @Component({
   selector: 'app-candidate-detail',
-  standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
     <div class="bg-white shadow rounded-lg p-6">
@@ -48,10 +47,11 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
   `,
   styles: []
 })
-export class CandidateDetailComponent {
+export class CandidateDetailComponent implements OnInit{
+  private route = inject(ActivatedRoute);
   candidateId: string | null = null;
 
-  constructor(private route: ActivatedRoute) {
+  ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.candidateId = params.get('id');
     });

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -42,9 +42,10 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
   styles: []
 })
 export class ResumeEditComponent {
+  private fb = inject(FormBuilder);
   resumeForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor() {
     this.resumeForm = this.fb.group({
       title: ['', Validators.required]
     });

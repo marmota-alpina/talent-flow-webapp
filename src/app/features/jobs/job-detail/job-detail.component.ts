@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 
@@ -44,9 +44,10 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
   styles: []
 })
 export class JobDetailComponent {
+  private route = inject(ActivatedRoute);
   jobId: string | null = null;
 
-  constructor(private route: ActivatedRoute) {
+  constructor() {
     this.route.paramMap.subscribe(params => {
       this.jobId = params.get('id');
     });

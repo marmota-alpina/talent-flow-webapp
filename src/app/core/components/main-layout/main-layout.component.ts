@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -10,243 +10,80 @@ import { AuthService } from '../../services/auth.service';
  */
 @Component({
   selector: 'app-main-layout',
-  standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="min-h-screen flex flex-col bg-gray-50">
-      <!-- Fixed header -->
-      <header class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="min-h-screen bg-gray-100">
+      <header class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex justify-between h-16">
-            <!-- Logo and navigation -->
-            <div class="flex">
-              <!-- Logo -->
-              <div class="flex-shrink-0 flex items-center">
-                <a routerLink="/dashboard" class="text-primary text-xl font-bold">Talent Flow</a>
-              </div>
-
-              <!-- Desktop navigation -->
-              <nav class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <a
-                  routerLink="/dashboard"
-                  routerLinkActive="border-primary text-gray-900"
-                  [routerLinkActiveOptions]="{exact: true}"
-                  class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Dashboard
-                </a>
-
-                <!-- Conditional navigation based on user role -->
-                @if (userProfile() && userProfile()!.role === 'candidate') {
-                  <a
-                    routerLink="/meu-curriculo"
-                    routerLinkActive="border-primary text-gray-900"
-                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                  >
-                    Meu Currículo
-                  </a>
-                  <a
-                    routerLink="/vagas"
-                    routerLinkActive="border-primary text-gray-900"
-                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                  >
-                    Vagas
-                  </a>
-                }
-
-                @if (userProfile() && (userProfile()!.role === 'recruiter' || userProfile()!.role === 'admin')) {
-                  <a
-                    routerLink="/gerenciar-vagas"
-                    routerLinkActive="border-primary text-gray-900"
-                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                  >
-                    Gerenciar Vagas
-                  </a>
-                  <a
-                    routerLink="/candidatos"
-                    routerLinkActive="border-primary text-gray-900"
-                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                  >
-                    Candidatos
-                  </a>
-                }
-              </nav>
+          <div class="flex justify-between items-center h-16">
+            <div class="flex-shrink-0">
+              <a routerLink="/dashboard" class="text-2xl font-bold text-primary">Talent Flow</a>
             </div>
 
-            <!-- User profile dropdown -->
-            <div class="flex items-center">
-              <div class="ml-3 relative">
-                <div class="flex items-center space-x-3">
-                  <span class="text-sm text-gray-700 hidden md:block">{{ userProfile()?.displayName }}</span>
-
-                  <!-- User photo from Google (as per ADR-012) -->
-                  <div class="flex items-center">
-                    @if (userProfile()?.photoURL) {
-                      <img
-                        [src]="userProfile()?.photoURL"
-                        alt="Profile photo"
-                        class="h-8 w-8 rounded-full"
-                      >
-                    }
-
-                    <!-- Default avatar if no photo -->
-                    @if (!userProfile()?.photoURL) {
-                      <div
-                        class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white"
-                      >
-                        {{ userProfile()?.displayName ? userProfile()?.displayName?.charAt(0)?.toUpperCase() : 'U' }}
-                      </div>
-                    }
-
-                    <!-- Logout button -->
-                    <button
-                      (click)="logout()"
-                      class="ml-3 text-sm text-gray-500 hover:text-gray-700"
-                    >
-                      Sair
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Mobile menu button -->
-            <div class="flex items-center sm:hidden">
-              <button
-                type="button"
-                (click)="toggleMobileMenu()"
-                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
-                aria-controls="mobile-menu"
-                [attr.aria-expanded]="mobileMenuOpen"
-              >
-                <span class="sr-only">Open main menu</span>
-                <!-- Icon when menu is closed -->
-                @if (!mobileMenuOpen) {
-                  <svg
-                    class="block h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                }
-                <!-- Icon when menu is open -->
-                @if (mobileMenuOpen) {
-                  <svg
-                    class="block h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                }
+            <div class="relative ml-4 flex items-center">
+              <button (click)="toggleDropdown()" class="flex items-center gap-2 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                <span class="hidden sm:inline font-semibold text-gray-700 text-sm">{{ userProfile()?.displayName }}</span>
+                <img class="w-8 h-8 rounded-full" [src]="userProfile()?.photoURL || 'assets/images/default-avatar.png'" alt="Foto do Perfil">
               </button>
+
+              @if (isDropdownOpen()) {
+                <div class="origin-top-right absolute right-0 top-12 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <a routerLink="/meu-curriculo" (click)="closeDropdown()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Meu Currículo</a>
+                  <button (click)="logout()" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer">Sair</button>
+                </div>
+              }
             </div>
-          </div>
-        </div>
-
-        <!-- Mobile menu, show/hide based on menu state -->
-        <div
-          id="mobile-menu"
-          [class.hidden]="!mobileMenuOpen"
-          class="sm:hidden"
-        >
-          <div class="pt-2 pb-3 space-y-1">
-            <a
-              routerLink="/dashboard"
-              routerLinkActive="bg-primary text-white"
-              [routerLinkActiveOptions]="{exact: true}"
-              class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium"
-            >
-              Dashboard
-            </a>
-
-            <!-- Conditional navigation based on user role -->
-            @if (userProfile() && userProfile()!.role === 'candidate') {
-              <a
-                routerLink="/meu-curriculo"
-                routerLinkActive="bg-primary text-white"
-                class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium"
-              >
-                Meu Currículo
-              </a>
-              <a
-                routerLink="/vagas"
-                routerLinkActive="bg-primary text-white"
-                class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium"
-              >
-                Vagas
-              </a>
-            }
-
-            @if (userProfile() && (userProfile()!.role === 'recruiter' || userProfile()!.role === 'admin')) {
-              <a
-                routerLink="/gerenciar-vagas"
-                routerLinkActive="bg-primary text-white"
-                class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium"
-              >
-                Gerenciar Vagas
-              </a>
-              <a
-                routerLink="/candidatos"
-                routerLinkActive="bg-primary text-white"
-                class="text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium"
-              >
-                Candidatos
-              </a>
-            }
           </div>
         </div>
       </header>
 
-      <!-- Main content -->
-      <main class="flex-grow">
+      <main>
         <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <router-outlet></router-outlet>
         </div>
       </main>
-
-      <!-- Footer -->
-      <footer class="bg-white border-t border-gray-200 py-4">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p class="text-center text-sm text-gray-500">
-            &copy; {{ currentYear }} Talent Flow. Todos os direitos reservados.
-          </p>
-        </div>
-      </footer>
     </div>
   `,
-  styles: []
 })
 export class MainLayoutComponent {
   private authService = inject(AuthService);
-
-  // Get user profile from the service
+  private elementRef = inject(ElementRef);
   userProfile = this.authService.userProfile;
 
-  // Mobile menu state
-  mobileMenuOpen = false;
-
-  // Current year for footer
-  currentYear = new Date().getFullYear();
+  isDropdownOpen = signal(false);
 
   /**
-   * Toggle mobile menu visibility
+   * Altera a visibilidade do menu dropdown.
    */
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen = !this.mobileMenuOpen;
+  toggleDropdown(): void {
+    this.isDropdownOpen.update(value => !value);
   }
 
   /**
-   * Handle logout
+   * Fecha o menu dropdown.
+   */
+  closeDropdown(): void {
+    this.isDropdownOpen.set(false);
+  }
+
+  /**
+   * Escuta por cliques no documento. Se o clique for fora do componente,
+   * fecha o menu dropdown.
+   * @param event O evento de clique.
+   */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const clickedInside = this.elementRef.nativeElement.contains(event.target);
+    if (!clickedInside) {
+      this.closeDropdown();
+    }
+  }
+
+  /**
+   * Executa o logout do usuário.
    */
   logout(): void {
-    this.authService.logout().subscribe();
+    this.closeDropdown(); // Fecha o menu antes de deslogar
+    this.authService.logout();
   }
 }

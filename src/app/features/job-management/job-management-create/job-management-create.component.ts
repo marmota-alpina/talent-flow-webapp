@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -62,9 +62,10 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
   styles: []
 })
 export class JobManagementCreateComponent {
+  private fb: FormBuilder = inject(FormBuilder);
   jobForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor() {
     this.jobForm = this.fb.group({
       title: ['', Validators.required],
       description: ['', Validators.required]

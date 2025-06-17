@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -63,13 +63,14 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
   styles: []
 })
 export class JobManagementEditComponent {
+  private route = inject(ActivatedRoute);
+  private fb = inject(FormBuilder);
   jobId: string | null = null;
   jobForm: FormGroup;
 
-  constructor(private route: ActivatedRoute, private fb: FormBuilder) {
+  constructor() {
     this.route.paramMap.subscribe(params => {
       this.jobId = params.get('id');
-      // In a real implementation, we would fetch the job data here
     });
 
     this.jobForm = this.fb.group({
