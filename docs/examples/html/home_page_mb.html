@@ -1,0 +1,225 @@
+<html class="fontawesome-i2svg-active fontawesome-i2svg-complete"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    tailwind.config = {
+      "theme": {
+        "extend": {
+          "colors": {
+            "primary": "#6E41E2",
+            "secondary": "#F3F4F6",
+            "accent": "#14B8A6",
+            "error": "#EF4444"
+          },
+          "fontFamily": {
+            "inter": ["Inter", "sans-serif"],
+            "sans": ["Inter", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif !important;
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-white">
+
+<header id="header" class="bg-white border-b border-gray-200 sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+    <div class="flex items-center">
+      <div class="text-2xl font-semibold text-primary">Talent Flow</div>
+    </div>
+    <button class="bg-primary text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-opacity-90 transition-colors">
+      Login / Cadastrar
+    </button>
+  </div>
+</header>
+
+<main>
+  <section id="hero-section" class="bg-gradient-to-b from-purple-50 to-white">
+    <div class="max-w-7xl mx-auto px-6 py-12 lg:py-20 grid md:grid-cols-2 gap-8 items-center">
+      <div class="text-center md:text-left">
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 mb-4 leading-tight">
+          Encontre a vaga ideal com o poder da IA
+        </h1>
+        <p class="text-gray-600 mb-8 text-lg leading-relaxed">
+          Conectamos talentos às melhores oportunidades usando inteligência artificial para um match perfeito.
+        </p>
+        <button class="bg-primary text-white px-8 py-3 rounded-lg font-semibold text-lg w-full sm:w-auto hover:bg-opacity-90 transition-colors">
+          Ver Vagas Abertas
+        </button>
+      </div>
+      <div>
+        <img class="w-full h-64 md:h-80 object-cover rounded-lg" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/87f6faf3d4-2eedc0cecf7c805c5eeb.png" alt="modern professional workspace with diverse people collaborating, flat illustration style, purple and teal colors">
+      </div>
+    </div>
+  </section>
+
+  <section id="filters-section" class="px-6 py-6 bg-secondary">
+    <div class="max-w-7xl mx-auto">
+      <div class="space-y-4 lg:space-y-0 lg:flex lg:items-center lg:gap-4">
+        <div class="relative flex-grow">
+          <input type="text" placeholder="Buscar por cargo, habilidade ou empresa..." class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base">
+          <i class="fas fa-magnifying-glass absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:w-auto lg:flex-shrink-0">
+          <select class="w-full lg:w-48 px-4 py-3 border border-gray-300 rounded-lg text-base bg-white">
+            <option>Senioridade</option>
+            <option>Júnior</option>
+            <option>Pleno</option>
+            <option>Sênior</option>
+          </select>
+          <select class="w-full lg:w-48 px-4 py-3 border border-gray-300 rounded-lg text-base bg-white">
+            <option>Localidade</option>
+            <option>Remoto</option>
+            <option>Híbrido</option>
+            <option>Presencial</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="jobs-list" class="px-6 py-8">
+    <div class="max-w-7xl mx-auto">
+      <h2 class="text-xl font-semibold text-gray-900 mb-6">Vagas Disponíveis</h2>
+
+      <div id="loading-state" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      </div>
+
+      <div id="empty-state" class="hidden text-center py-12">
+        <div class="inline-block bg-purple-100 text-primary p-4 rounded-full">
+          <i class="fas fa-search-minus text-4xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800 mt-4">Nenhuma vaga encontrada</h3>
+        <p class="text-gray-500 mt-2">Tente ajustar seus filtros de busca para ver mais resultados.</p>
+      </div>
+
+      <div id="real-jobs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-primary flex flex-col">
+          <div class="flex-grow">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-lg font-semibold text-gray-900">Desenvolvedor Frontend React</h3>
+              <span class="bg-accent text-white px-2 py-1 rounded text-xs font-semibold flex-shrink-0">NOVO</span>
+            </div>
+            <p class="text-gray-600 mb-3">TechCorp Solutions</p>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="bg-purple-100 text-primary px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-location-dot mr-2"></i>Remoto</span>
+              <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-star mr-2"></i>Pleno</span>
+            </div>
+          </div>
+          <button class="w-full bg-primary text-white py-3 rounded-lg font-semibold mt-2 hover:bg-opacity-90 transition-colors">
+            Ver Detalhes
+          </button>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-primary flex flex-col">
+          <div class="flex-grow">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Product Manager</h3>
+            <p class="text-gray-600 mb-3">Empresa Confidencial</p>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="bg-purple-100 text-primary px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-location-dot mr-2"></i>São Paulo</span>
+              <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-star mr-2"></i>Sênior</span>
+            </div>
+          </div>
+          <button class="w-full bg-primary text-white py-3 rounded-lg font-semibold mt-2 hover:bg-opacity-90 transition-colors">
+            Ver Detalhes
+          </button>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-primary flex flex-col">
+          <div class="flex-grow">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">UX/UI Designer</h3>
+            <p class="text-gray-600 mb-3">StartupXYZ</p>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="bg-purple-100 text-primary px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-location-dot mr-2"></i>Híbrido</span>
+              <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-star mr-2"></i>Júnior</span>
+            </div>
+          </div>
+          <button class="w-full bg-primary text-white py-3 rounded-lg font-semibold mt-2 hover:bg-opacity-90 transition-colors">
+            Ver Detalhes
+          </button>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-primary flex flex-col">
+          <div class="flex-grow">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Engenheiro de Backend (Node.js)</h3>
+            <p class="text-gray-600 mb-3">CloudNine Inc.</p>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="bg-purple-100 text-primary px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-location-dot mr-2"></i>Remoto (Brasil)</span>
+              <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-star mr-2"></i>Sênior</span>
+            </div>
+          </div>
+          <button class="w-full bg-primary text-white py-3 rounded-lg font-semibold mt-2 hover:bg-opacity-90 transition-colors">
+            Ver Detalhes
+          </button>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-primary flex flex-col">
+          <div class="flex-grow">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-lg font-semibold text-gray-900">Analista DevOps</h3>
+              <span class="bg-accent text-white px-2 py-1 rounded text-xs font-semibold flex-shrink-0">NOVO</span>
+            </div>
+            <p class="text-gray-600 mb-3">InfraSecure</p>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="bg-purple-100 text-primary px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-location-dot mr-2"></i>Híbrido - Florianópolis</span>
+              <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-star mr-2"></i>Pleno</span>
+            </div>
+          </div>
+          <button class="w-full bg-primary text-white py-3 rounded-lg font-semibold mt-2 hover:bg-opacity-90 transition-colors">
+            Ver Detalhes
+          </button>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-primary flex flex-col">
+          <div class="flex-grow">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">QA Automation Engineer</h3>
+            <p class="text-gray-600 mb-3">QualityFirst Labs</p>
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span class="bg-purple-100 text-primary px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-location-dot mr-2"></i>Remoto</span>
+              <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center"><i class="fas fa-star mr-2"></i>Júnior</span>
+            </div>
+          </div>
+          <button class="w-full bg-primary text-white py-3 rounded-lg font-semibold mt-2 hover:bg-opacity-90 transition-colors">
+            Ver Detalhes
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer id="footer" class="bg-gray-900 text-white mt-12">
+  <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="text-center">
+      <div class="text-xl font-semibold text-primary mb-4">Talent Flow</div>
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-6">
+        <span class="text-gray-300 hover:text-white cursor-pointer">Sobre Nós</span>
+        <span class="text-gray-300 hover:text-white cursor-pointer">Contato</span>
+        <span class="text-gray-300 hover:text-white cursor-pointer">Política de Privacidade</span>
+        <span class="text-gray-300 hover:text-white cursor-pointer">Termos de Uso</span>
+      </div>
+      <div class="flex justify-center space-x-6 mb-4">
+        <span class="text-gray-400 hover:text-white cursor-pointer"><i class="fab fa-linkedin text-xl"></i></span>
+        <span class="text-gray-400 hover:text-white cursor-pointer"><i class="fab fa-twitter text-xl"></i></span>
+        <span class="text-gray-400 hover:text-white cursor-pointer"><i class="fab fa-instagram text-xl"></i></span>
+      </div>
+      <p class="text-gray-400 text-sm">© 2024 Talent Flow. Todos os direitos reservados.</p>
+    </div>
+  </div>
+</footer>
+
+</body></html>
