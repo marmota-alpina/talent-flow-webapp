@@ -62,8 +62,33 @@ src/app/
 
 #### **5. Fluxo de Dados Principal: Autenticação e Autorização**
 
-1. O usuário se autentica via `LoginComponent`, que chama o `AuthService`.
-2. O `AuthService` lida com a autenticação do Firebase e, em caso de sucesso, cria/atualiza o perfil do usuário na coleção `users` do Firestore.
-3. O `AuthService` armazena o estado de autenticação e o perfil do usuário em `signals`.
-4. O `RoleGuard` lê o `signal` do perfil do usuário para verificar seu `role` antes de permitir o acesso a uma rota protegida.
-5. Componentes de layout (como `MainLayoutComponent`) se inscrevem nos `signals` do `AuthService` para exibir informações do usuário (nome, foto).
+O fluxo de autenticação é o ponto de entrada para usuários na plataforma, projetado para ser seguro, testável e reativo, utilizando o Firebase e as melhores práticas do Angular.
+
+1.  **Início do Fluxo (Interface do Usuário):**
+    *   O usuário acessa a rota `/login`, onde o `LoginComponent` é renderizado.
+    *   Ao clicar em "Entrar com o Google", o `LoginComponent` invoca o método `loginWithGoogle()` do `AuthService`.
+
+2.  **Lógica de Autenticação (`AuthService`):**
+    *   O `AuthService` utiliza o SDK do Firebase (`@angular/fire`) para abrir um popup de autenticação do Google.
+    *   Para garantir a testabilidade e desacoplamento, as funções modulares do Firebase (como `signInWithPopup`, `getDoc`, `setDoc`) são injetadas no serviço através de `InjectionToken`, uma decisão documentada na **ADR-0020**.
+
+3.  **Criação/Atualização de Perfil no Firestore:**
+    *   Após a autenticação bem-sucedida com o Google, o `AuthService` recebe as informações do usuário (`User`).
+    *   Ele então verifica se já existe um documento para este usuário na coleção `users` do Firestore, usando o `uid` do usuário como ID do documento.
+    *   **Se o usuário é novo:** Um novo perfil (`UserProfile`) é criado no Firestore, armazenando dados essenciais como `uid`, `displayName`, `email`, `photoURL` e um `role` padrão de `'candidate'`.
+    *   **Se o usuário já existe:** O `AuthService` apenas atualiza a data do último login (`updatedAt`).
+
+4.  **Gerenciamento de Estado com Signals:**
+    *   O `AuthService` expõe o estado de autenticação através de `signals` reativos:
+        *   `currentUser`: Contém o objeto `User` do Firebase ou `null`.
+        *   `userProfile`: Contém o objeto `UserProfile` do Firestore ou `null`.
+        *   `isLoading`: Indica se uma operação de login/logout está em andamento.
+    *   Componentes em toda a aplicação, como o `MainLayoutComponent`, consomem esses `signals` para exibir ou ocultar informações do usuário de forma reativa e sem a necessidade de `subscribe`.
+
+5.  **Proteção de Rotas com Guards:**
+    *   O `AuthGuard` protege as rotas que exigem autenticação. Ele verifica se o `signal` `currentUser` possui um valor. Se for `null`, o acesso é negado e o usuário é redirecionado para `/login`.
+    *   Futuramente, um `RoleGuard` lerá o `signal` `userProfile` para verificar o `role` do usuário e autorizar o acesso a rotas específicas (ex: rotas de administrador).
+
+6.  **Logout:**
+    *   O `MainLayoutComponent` oferece a opção de "Sair".
+    *   O clique aciona o método `logout()` no `AuthService`, que chama a função de `signOut` do Firebase, limpa os `signals` de estado e redireciona o usuário para a página de login.
