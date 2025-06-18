@@ -1,26 +1,11 @@
-import { ApplicationRef, inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { ApplicationRef, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import {
-  Auth,
-  authState,
-  GoogleAuthProvider,
-  onIdTokenChanged,
-  signInWithPopup,
-  User,
-  signOut
-} from '@angular/fire/auth';
-import {
-  doc,
-  docData,
-  Firestore,
-  getDoc,
-  setDoc
-} from '@angular/fire/firestore';
-import { EMPTY, Observable } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
+import { Auth, authState, GoogleAuthProvider, signInWithPopup, User, signOut } from '@angular/fire/auth';
+import { doc, Firestore, getDoc, setDoc, Timestamp } from '@angular/fire/firestore';
+import { Observable, of, from } from 'rxjs';
+import { map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { UserProfile } from '../../models/user-profile.model';
-import { signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
@@ -32,139 +17,130 @@ export class AuthService {
   private router: Router = inject(Router);
   private appRef: ApplicationRef = inject(ApplicationRef);
 
-  // --- State Signals ---
-  isLoading = signal(false);
-  authError = signal<string | null>(null);
+  // Signals para acesso síncrono e fácil na UI
   currentUser = signal<User | null>(null);
   userProfile = signal<UserProfile | null>(null);
+  isLoading = signal<boolean>(false);
+  authError = signal<string | null>(null);
 
-  // --- Observables for stream-based authentication state ---
-  readonly currentUser$: Observable<User | null> = authState(this.auth);
-  readonly userProfile$: Observable<UserProfile | null> = this.currentUser$.pipe(
+  /**
+   * A FONTE ÚNICA DA VERDADE:
+   * Este é o observable principal que combina o estado de autenticação com o perfil do Firestore.
+   * shareReplay(1) é a chave: ele transforma o observable em "hot", executa a lógica
+   * uma vez e guarda o último resultado para qualquer novo inscrito (guards, resolvers).
+   */
+  readonly userState$: Observable<{ user: User | null; profile: UserProfile | null }> = authState(this.auth).pipe(
     switchMap(user => {
       if (!user) {
-        return EMPTY;
+        return of({ user: null, profile: null });
       }
       const userDocRef = doc(this.firestore, `users/${user.uid}`);
-      return docData(userDocRef) as Observable<UserProfile | null>;
+      // Use from(getDoc()) instead of docData() to avoid Firebase query type error
+      return from(getDoc(userDocRef)).pipe(
+        map(docSnap => ({
+          user,
+          profile: docSnap.exists() ? docSnap.data() as UserProfile : null
+        }))
+      );
     }),
-    tap(profile => this.userProfile.set(profile))
+    tap(({ user, profile }) => {
+      // Atualiza os signals para que o resto da aplicação possa usá-los
+      this.currentUser.set(user);
+      this.userProfile.set(profile);
+      this.appRef.tick(); // Força a detecção de mudanças em ambiente zoneless
+    }),
+    shareReplay(1) // ESSENCIAL: Cacheia o último estado e o compartilha
   );
 
   constructor() {
-    this.initializeAuthStateListener();
-  }
-
-  /**
-   * Initializes a listener for authentication state changes.
-   * Updates user signals upon login or logout.
-   */
-  private initializeAuthStateListener(): void {
-    onIdTokenChanged(this.auth, user => {
-      this.currentUser.set(user);
-      if (!user) {
-        // Clear user profile on logout
-        this.userProfile.set(null);
+    // "Liga" o observable principal assim que o serviço é criado.
+    // Ele ficará ativo em background, mantendo o estado do usuário sempre atualizado.
+    this.userState$.subscribe(({ user }) => {
+      // Refresh the user profile on application start to ensure photoURL is up-to-date
+      if (user) {
+        this.refreshUserProfile(user);
       }
     });
   }
 
   /**
-   * Handle login with Google in a zoneless environment.
+   * Refreshes the user profile data to ensure it's up-to-date,
+   * particularly for fixing profile photo URLs that might be broken.
    */
-  loginWithGoogle(): void {
+  private refreshUserProfile(user: User): void {
+    // Only refresh once per session to avoid unnecessary Firestore writes
+    if (!this._profileRefreshed) {
+      this.updateUserProfile(user);
+      this._profileRefreshed = true;
+    }
+  }
+
+  // Flag to track if profile has been refreshed in this session
+  private _profileRefreshed = false;
+
+  loginWithGoogle(): Promise<void> {
     this.isLoading.set(true);
     this.authError.set(null);
-    this.appRef.tick(); // Force UI update to show loading state
 
     const provider = new GoogleAuthProvider();
-
-    signInWithPopup(this.auth, provider)
+    return signInWithPopup(this.auth, provider)
       .then(async (result) => {
-        const user = result.user;
-        await this.updateUserProfile(user);
-
-        // Update state and navigate
+        await this.updateUserProfile(result.user);
         this.handlePostLoginRedirection();
         this.isLoading.set(false);
-
-        // Manually trigger change detection for the entire application
-        this.appRef.tick();
       })
       .catch((error) => {
-        // On error, update the error state
-        this.authError.set(this.getFriendlyErrorMessage(error.code));
+        console.error('Authentication error:', error);
+        this.authError.set('Falha na autenticação. Por favor, tente novamente.');
         this.isLoading.set(false);
-
-        // Manually trigger change detection to show the error
-        this.appRef.tick();
+        return Promise.reject(error);
       });
   }
 
-  /**
-   * Logs the user out.
-   * @returns A promise that resolves when the user is logged out.
-   */
   logout(): Promise<void> {
     return signOut(this.auth).then(() => {
       this.router.navigate(['/login']);
     });
   }
 
-  /**
-   * Creates or updates a user's profile in Firestore.
-   * @param user The user object from Firebase Auth.
-   * @private
-   */
   private async updateUserProfile(user: User): Promise<void> {
     const userRef = doc(this.firestore, `users/${user.uid}`);
     const userDoc = await getDoc(userRef);
 
+    // Ensure the photoURL is properly persisted by making it a permanent URL
+    // Google profile photos sometimes use temporary URLs that expire or require authentication
+    let photoURL = user.photoURL ?? '';
+    if (photoURL && photoURL.includes('googleusercontent.com')) {
+      // Remove any size parameters and ensure it's a permanent URL
+      photoURL = photoURL.split('=')[0] + '=s96-c';
+    }
+
     const userData: UserProfile = {
       uid: user.uid,
-      email: user.email!,
-      displayName: user.displayName!,
-      photoURL: user.photoURL!,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      // Assign 'candidate' role if the user is new, otherwise keep existing role
+      email: user.email ?? 'N/A',
+      displayName: user.displayName ?? 'Usuário',
+      photoURL: photoURL,
       role: userDoc.exists() ? userDoc.data()['role'] : 'candidate',
+      createdAt: userDoc.exists() ? userDoc.data()['createdAt'] : Timestamp.now(),
+      updatedAt: Timestamp.now(),
     };
-
-    // Use setDoc with merge to create or update the document
     await setDoc(userRef, userData, { merge: true });
-    this.userProfile.set(userData); // Also update the local signal
   }
 
-  /**
-   * Handles redirection after a successful login.
-   * Reads a stored URL from localStorage or defaults to the dashboard.
-   * @private
-   */
   private handlePostLoginRedirection(): void {
     if (isPlatformBrowser(this.platformId)) {
       const redirectUrl = localStorage.getItem('redirectUrl') || '/dashboard';
       localStorage.removeItem('redirectUrl');
-      this.router.navigateByUrl(redirectUrl);
-    } else {
-      // Default server-side redirect
-      this.router.navigate(['/dashboard']);
-    }
-  }
 
-  /**
-   * Converts Firebase error codes to user-friendly messages.
-   * @param errorCode The error code from Firebase.
-   * @private
-   */
-  private getFriendlyErrorMessage(errorCode: string): string {
-    switch (errorCode) {
-      case 'auth/popup-closed-by-user':
-        return 'A janela de login foi fechada antes da conclusão. Por favor, tente novamente.';
-      case 'auth/cancelled-popup-request':
-        return 'Múltiplas tentativas de login detectadas. Por favor, complete uma de cada vez.';
-      default:
-        return 'Ocorreu um erro durante o login. Por favor, tente novamente mais tarde.';
+      // Always navigate to a known route to avoid blank screen issues
+      if (redirectUrl === '/' || redirectUrl === '') {
+        this.router.navigate(['/dashboard']);
+      } else {
+        // Use navigate instead of navigateByUrl for more reliable routing
+        // Remove any leading slash to ensure proper route resolution
+        const formattedUrl = redirectUrl.startsWith('/') ? redirectUrl.substring(1) : redirectUrl;
+        this.router.navigate([formattedUrl]);
+      }
     }
   }
 }

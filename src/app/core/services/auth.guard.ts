@@ -1,73 +1,31 @@
-import { inject, PLATFORM_ID } from '@angular/core'; // 1. Importe PLATFORM_ID
-import { isPlatformBrowser } from '@angular/common'; // 2. Importe isPlatformBrowser
-import {
-  CanActivateFn,
-  Router,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot
-} from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router, UrlTree } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 
-/**
- * Guard to protect routes that require authentication
- * As per TFLOW-009 AC1, unauthenticated users will be redirected to the login page
- */
-export const authGuard: CanActivateFn = (
-  route: ActivatedRouteSnapshot,
-  state: RouterStateSnapshot
-) => {
-  const router = inject(Router);
+export const authGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
   const authService = inject(AuthService);
-  const platformId = inject(PLATFORM_ID); // 3. Injete o PLATFORM_ID
+  const router = inject(Router);
 
-  // 4. Verifique se o código está rodando no navegador antes de usar o localStorage
-  if (isPlatformBrowser(platformId)) {
-    // Store the attempted URL for redirecting after login
-    localStorage.setItem('redirectUrl', state.url);
-  }
-
-  // Check if user is authenticated
-  if (authService.currentUser()) {
-    return true;
-  }
-
-  // If not authenticated, redirect to login page
-  router.navigate(['/login']);
-  return false;
+  return authService.userState$.pipe(
+    take(1), // Pega o primeiro estado já cacheado pelo shareReplay
+    map(({ user }) => user ? true : router.createUrlTree(['/login']))
+  );
 };
 
-/**
- * Guard to protect routes that require a specific role
- * This extends the basic auth guard to also check user roles
- */
 export const roleGuard = (allowedRoles: string[]): CanActivateFn => {
-  return (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
-    const router = inject(Router);
+  return (): Observable<boolean | UrlTree> => {
     const authService = inject(AuthService);
-    const platformId = inject(PLATFORM_ID); // 3. Injete o PLATFORM_ID
+    const router = inject(Router);
 
-    // First check if user is authenticated
-    if (!authService.currentUser()) {
-      // 4. Verifique se o código está rodando no navegador antes de usar o localStorage
-      if (isPlatformBrowser(platformId)) {
-        // Store the attempted URL for redirecting after login
-        localStorage.setItem('redirectUrl', state.url);
-      }
-
-      // Redirect to login page
-      router.navigate(['/login']);
-      return false;
-    }
-
-    // Then check if user has the required role
-    const userProfile = authService.userProfile();
-
-    if (userProfile && allowedRoles.includes(userProfile.role)) {
-      return true;
-    }
-
-    // If user doesn't have the required role, redirect to dashboard
-    router.navigate(['/dashboard']);
-    return false;
+    return authService.userState$.pipe(
+      take(1),
+      map(({ user, profile }) =>
+        (user && profile && allowedRoles.includes(profile.role))
+          ? true
+          : router.createUrlTree(['/dashboard'])
+      )
+    );
   };
 };

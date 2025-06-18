@@ -1,22 +1,28 @@
 import { Routes } from '@angular/router';
-import { authGuard, roleGuard } from './core/services/auth.guard';
 import { MainLayoutComponent } from './core/components/main-layout/main-layout.component';
+import { authGuard, roleGuard } from './core/services/auth.guard';
 import { LoginComponent } from './features/auth/login/login.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 
 export const routes: Routes = [
-  // Public routes
-  { path: 'login', component: LoginComponent },
+  // Rota pública
+  {
+    path: 'login',
+    component: LoginComponent
+  },
 
-  // Protected routes with MainLayoutComponent
+  // Rotas protegidas que usam o MainLayoutComponent
   {
     path: '',
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
-      { path: 'dashboard', component: DashboardComponent },
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+      },
 
-      // Candidate routes
+      // Rotas do Candidato
       {
         path: 'meu-curriculo',
         loadChildren: () => import('./features/resume/resume.routes').then(m => m.resumeRoutes),
@@ -28,7 +34,7 @@ export const routes: Routes = [
         canActivate: [roleGuard(['candidate'])]
       },
 
-      // Recruiter/Admin routes
+      // Rotas do Recrutador/Admin
       {
         path: 'gerenciar-vagas',
         loadChildren: () => import('./features/job-management/job-management.routes').then(m => m.jobManagementRoutes),
@@ -40,11 +46,11 @@ export const routes: Routes = [
         canActivate: [roleGuard(['recruiter', 'admin'])]
       },
 
-      // Default redirect to dashboard
+      // Redirecionamento padrão para o dashboard
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
 
-  // Fallback route
+  // Rota de fallback para qualquer outra URL
   { path: '**', redirectTo: 'dashboard' }
 ];
