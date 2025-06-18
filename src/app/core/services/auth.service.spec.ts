@@ -1,24 +1,16 @@
 import { Router } from '@angular/router';
+import { Auth, User, UserCredential } from '@angular/fire/auth';
+import { Firestore, Timestamp, DocumentData, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
 import { Injector } from '@angular/core';
-import { Auth, GoogleAuthProvider, User, UserCredential } from '@angular/fire/auth';
-import { Firestore, Timestamp, DocumentReference, DocumentSnapshot, DocumentData, SnapshotMetadata } from '@angular/fire/firestore';
-import { BehaviorSubject, firstValueFrom, of } from 'rxjs';
+import {BehaviorSubject, firstValueFrom} from 'rxjs';
 
-import {
-  AuthService,
-  AUTH_STATE_FN,
-  SIGN_IN_WITH_POPUP_FN,
-  DOC_FN,
-  GET_DOC_FN,
-  SET_DOC_FN,
-  SERVER_TIMESTAMP_FN
-} from './auth.service';
+import { AuthService, AUTH_STATE_FN, SIGN_IN_WITH_POPUP_FN, DOC_FN, GET_DOC_FN, SET_DOC_FN, SERVER_TIMESTAMP_FN } from './auth.service';
 import { UserProfile } from '../../models/user-profile.model';
 
 // Funções de mock (sem alterações)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const createMockUser = (overrides?: Partial<User>): User => ({ uid: 'test-uid', email: 'test@example.com', displayName: 'Test User', photoURL: 'https://example.com/photo.jpg', emailVerified: true, isAnonymous: false, metadata: {} as any, providerData: [], refreshToken: 'test-token', tenantId: null, delete: () => Promise.resolve(), getIdToken: () => Promise.resolve('test-id-token'), getIdTokenResult: () => Promise.resolve({} as any), reload: () => Promise.resolve(), toJSON: () => ({}), phoneNumber: null, providerId: 'google.com', ...overrides });
 const createMockUserProfile = (overrides?: Partial<UserProfile>): UserProfile => ({ uid: 'test-uid', email: 'test@example.com', displayName: 'Test User', photoURL: 'https://example.com/photo.jpg', role: 'candidate', createdAt: Timestamp.now(), updatedAt: Timestamp.now(), ...overrides });
-
 
 // =================================================================
 // SOLUÇÃO: Corrigimos o mock para satisfazer o TypeScript
@@ -34,14 +26,13 @@ const createMockDocSnapshot = (exists: boolean, data: DocumentData | undefined):
     metadata: {
       hasPendingWrites: false,
       fromCache: false,
-      isEqual: (other: SnapshotMetadata) => false
+      isEqual: () => false
     },
   };
   // Para resolver o erro do 'exists', nós convertemos para 'unknown' primeiro,
   // como sugerido pela própria mensagem de erro do compilador.
   return mock as unknown as DocumentSnapshot;
 };
-
 
 describe('AuthService (Fully Injected Mocks)', () => {
   let service: AuthService;

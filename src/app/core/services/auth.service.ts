@@ -1,7 +1,7 @@
 import { inject, Injectable, InjectionToken, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth, authState, GoogleAuthProvider, signInWithPopup, User } from '@angular/fire/auth';
-import { Firestore, doc, getDoc, setDoc, serverTimestamp, DocumentReference, DocumentSnapshot, collection } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc, setDoc, serverTimestamp } from '@angular/fire/firestore';
 import { distinctUntilChanged, from, map, of, switchMap, tap, firstValueFrom } from 'rxjs';
 
 import { UserProfile } from '../../models/user-profile.model';
@@ -97,7 +97,7 @@ export class AuthService {
       localStorage.removeItem('redirectUrl');
       this.router.navigate([redirectUrl]);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login failed:', error);
       this.authError.set('Falha na autenticação. Por favor, tente novamente.');
     } finally {

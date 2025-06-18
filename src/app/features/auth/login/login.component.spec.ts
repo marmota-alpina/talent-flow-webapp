@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { By } from '@angular/platform-browser';
-import { signal, provideZonelessChangeDetection } from '@angular/core';
+import { signal, provideZonelessChangeDetection, WritableSignal } from '@angular/core';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -47,7 +47,7 @@ describe('LoginComponent (Zoneless)', () => {
 
   it('should show loading state when isLoading is true', () => {
     // Update the isLoading signal to true
-    (mockAuthService.isLoading as any).set(true);
+    (mockAuthService.isLoading as WritableSignal<boolean>).set(true);
     fixture.detectChanges();
 
     const buttonElement = fixture.debugElement.query(By.css('button')).nativeElement;
@@ -58,7 +58,7 @@ describe('LoginComponent (Zoneless)', () => {
 
   it('should show error message when authError has a value', () => {
     const errorMessage = 'Authentication failed';
-    (mockAuthService.authError as any).set(errorMessage);
+    (mockAuthService.authError as WritableSignal<string | null>).set(errorMessage);
     fixture.detectChanges();
 
     const errorElement = fixture.debugElement.query(By.css('.text-red-600')).nativeElement;
