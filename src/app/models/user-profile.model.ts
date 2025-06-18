@@ -1,4 +1,4 @@
-import { Timestamp } from '@angular/fire/firestore';
+import { FieldValue, Timestamp } from '@angular/fire/firestore';
 
 /**
  * Model representing a user profile in the application.
@@ -13,9 +13,9 @@ export interface UserProfile {
   /**
    * Use o tipo Timestamp do Firestore para consistência com o banco de dados.
    */
-  createdAt: Timestamp;
+  createdAt: Timestamp | FieldValue;
   /**
    * Use o tipo Timestamp do Firestore para consistência com o banco de dados.
    */
-  updatedAt: Timestamp;
+  updatedAt: Timestamp | FieldValue;
 }

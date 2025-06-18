@@ -9,8 +9,13 @@ export const authGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
   const router = inject(Router);
 
   return authService.userState$.pipe(
-    take(1), // Pega o primeiro estado já cacheado pelo shareReplay
-    map(({ user }) => user ? true : router.createUrlTree(['/login']))
+    take(1), // Pega o primeiro estado emitido para decidir
+    map(() => {
+      // A fonte da verdade agora são os signals, o userState$ apenas dispara a lógica
+      return authService.currentUser()
+        ? true
+        : router.createUrlTree(['/login']);
+    })
   );
 };
 
@@ -21,11 +26,13 @@ export const roleGuard = (allowedRoles: string[]): CanActivateFn => {
 
     return authService.userState$.pipe(
       take(1),
-      map(({ user, profile }) =>
-        (user && profile && allowedRoles.includes(profile.role))
+      map(() => {
+        const user = authService.currentUser();
+        const profile = authService.userProfile();
+        return user && profile && allowedRoles.includes(profile.role)
           ? true
-          : router.createUrlTree(['/dashboard'])
-      )
+          : router.createUrlTree(['/dashboard']);
+      })
     );
   };
 };
