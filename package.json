@@ -31,13 +31,16 @@
     "@tailwindcss/postcss": "^4.1.10",
     "autoprefixer": "^10.4.21",
     "express": "^5.1.0",
-    "firebase": "^10.9.0",
+    "firebase": "^11.9.1",
     "ngx-toastr": "^18.0.0",
     "postcss": "^8.5.5",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.10.7",
     "tailwindcss": "^4.1.10",
     "tslib": "^2.3.0"
+  },
+  "overrides": {
+    "firebase": "^11.9.1"
   },
   "devDependencies": {
     "@angular/build": "^20.0.1",

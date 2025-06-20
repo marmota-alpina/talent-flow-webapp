@@ -1,0 +1,187 @@
+<div class="container mx-auto p-4">
+  <h1 class="text-2xl font-bold mb-4">Proficiency Levels Management</h1>
+
+  <!-- Loading and Error States -->
+  @if (loading()) {
+    <div class="flex justify-center my-8">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- View Switcher -->
+  <div class="flex mb-4 border-b">
+    <button
+      (click)="switchView(CurationItemStatus.ACTIVE)"
+      class="py-2 px-4 mr-2"
+      [class.border-b-2]="currentView() === CurationItemStatus.ACTIVE"
+      [class.border-primary]="currentView() === CurationItemStatus.ACTIVE"
+      [class.font-semibold]="currentView() === CurationItemStatus.ACTIVE">
+      Active Proficiency Levels
+    </button>
+    <button
+      (click)="switchView(CurationItemStatus.ARCHIVED)"
+      class="py-2 px-4"
+      [class.border-b-2]="currentView() === CurationItemStatus.ARCHIVED"
+      [class.border-primary]="currentView() === CurationItemStatus.ARCHIVED"
+      [class.font-semibold]="currentView() === CurationItemStatus.ARCHIVED">
+      Archived Proficiency Levels
+    </button>
+  </div>
+
+  <!-- Create Button -->
+  <div class="mb-4">
+    <button
+      (click)="openCreateModal()"
+      class="bg-primary text-white py-2 px-4 rounded hover:bg-blue-700">
+      Add New Proficiency Level
+    </button>
+  </div>
+
+  <!-- Proficiency Levels Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white border border-gray-200">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="py-2 px-4 border-b text-left">Name</th>
+          <th class="py-2 px-4 border-b text-left">Description</th>
+          <th class="py-2 px-4 border-b text-left">Level</th>
+          <th class="py-2 px-4 border-b text-left">Color</th>
+          <th class="py-2 px-4 border-b text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (level of displayedItems(); track level.id) {
+          <tr class="hover:bg-gray-50">
+            <td class="py-2 px-4 border-b">{{ level.name }}</td>
+            <td class="py-2 px-4 border-b">{{ level.description }}</td>
+            <td class="py-2 px-4 border-b">{{ level.level }}</td>
+            <td class="py-2 px-4 border-b">
+              <div class="w-6 h-6 rounded" [ngStyle]="getColorStyle(level)"></div>
+            </td>
+            <td class="py-2 px-4 border-b">
+              <button
+                (click)="openEditModal(level)"
+                class="text-blue-600 hover:text-blue-800 mr-2">
+                Edit
+              </button>
+
+              @if (level.status === CurationItemStatus.ACTIVE) {
+                <button
+                  (click)="archiveItem(level.id!)"
+                  class="text-red-600 hover:text-red-800">
+                  Archive
+                </button>
+              }
+
+              @if (level.status === CurationItemStatus.ARCHIVED) {
+                <button
+                  (click)="unarchiveItem(level.id!)"
+                  class="text-green-600 hover:text-green-800">
+                  Restore
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="py-4 text-center text-gray-500">
+              No proficiency levels found. Click "Add New Proficiency Level" to create one.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Edit/Create Modal -->
+  @if (showModal()) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
+        <div class="p-4 border-b">
+          <h2 class="text-xl font-semibold">
+            {{ currentItem() ? 'Edit Proficiency Level' : 'Add New Proficiency Level' }}
+          </h2>
+        </div>
+
+        <div class="p-4">
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+              Name *
+            </label>
+            <input
+              id="name"
+              type="text"
+              [(ngModel)]="formModel.name"
+              class="form-input w-full"
+              placeholder="Enter proficiency level name"
+              required>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
+              Description
+            </label>
+            <textarea
+              id="description"
+              [(ngModel)]="formModel.description"
+              class="form-input w-full"
+              placeholder="Enter proficiency level description"
+              rows="3"></textarea>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="level">
+              Level (1-5)
+            </label>
+            <input
+              id="level"
+              type="number"
+              [(ngModel)]="formModel.level"
+              class="form-input w-full"
+              min="1"
+              max="5">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="color">
+              Color
+            </label>
+            <select
+              id="color"
+              [(ngModel)]="formModel.color"
+              class="form-input w-full">
+              @for (color of ProficiencyLevelColor | keyvalue; track color.key) {
+                <option [value]="color.value">
+                  {{ color.key }}
+                </option>
+              }
+            </select>
+            <div class="mt-2 w-full h-6 rounded" [style.background-color]="formModel.color"></div>
+          </div>
+        </div>
+
+        <div class="p-4 border-t flex justify-end">
+          <button
+            (click)="closeModal()"
+            class="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400 mr-2">
+            Cancel
+          </button>
+          <button
+            (click)="onSave()"
+            [disabled]="!formModel.name"
+            class="bg-primary text-white py-2 px-4 rounded hover:bg-blue-700"
+            [class.opacity-50]="!formModel.name"
+            [class.cursor-not-allowed]="!formModel.name">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
