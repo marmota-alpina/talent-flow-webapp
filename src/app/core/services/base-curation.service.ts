@@ -9,7 +9,8 @@ import {
   serverTimestamp,
   query,
   where,
-  orderBy
+  orderBy,
+  getCountFromServer
 } from '@angular/fire/firestore';
 import { Observable, from } from 'rxjs';
 import { CurationItem, CurationItemStatus } from '../../models/curation-item.model';
@@ -99,5 +100,20 @@ export abstract class BaseCurationService<T extends CurationItem> {
    */
   unarchive(id: string): Observable<void> {
     return this.update(id, { status: CurationItemStatus.ACTIVE } as Partial<T>);
+  }
+
+  /**
+   * Count items in the collection with the specified status.
+   * This is more efficient than retrieving all items and counting them.
+   * @param status Status filter (active or archived)
+   * @returns Observable of the count
+   */
+  count(status: CurationItemStatus = CurationItemStatus.ACTIVE): Observable<number> {
+    const collectionRef = collection(this.firestore, this.collectionName);
+    const itemsQuery = query(
+      collectionRef,
+      where('status', '==', status)
+    );
+    return from(getCountFromServer(itemsQuery).then(snapshot => snapshot.data().count));
   }
 }
