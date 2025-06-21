@@ -9,6 +9,7 @@ import { ProficiencyLevelsService } from '../../proficiency-levels/proficiency-l
 import { ExperienceLevelsService } from '../../experience-levels/experience-levels.service';
 import { ProfessionalAreasService } from '../../professional-areas/professional-areas.service';
 import { CurationItemStatus } from '../../../models/curation-item.model';
+import {CurationSeedService} from '../../../core/services/curation-seed-service';
 
 /**
  * Dashboard component for the curation area
@@ -40,6 +41,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     { name: 'Áreas Profissionais', count: 0, icon: 'fa-sitemap', color: 'purple', path: '/curation/professional-areas' }
   ]);
 
+  canSeed = signal<boolean>(false);
+  isSeeding = signal<boolean>(false);
+  isClearing = signal<boolean>(false);
+
   // Services injected using inject() function
   private technologiesService = inject(TechnologiesService);
   private softSkillsService = inject(SoftSkillsService);
@@ -47,6 +52,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private proficiencyLevelsService = inject(ProficiencyLevelsService);
   private experienceLevelsService = inject(ExperienceLevelsService);
   private professionalAreasService = inject(ProfessionalAreasService);
+  private seedService = inject(CurationSeedService);
 
   ngOnInit(): void {
     this.loadStatistics();
@@ -90,6 +96,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             { ...currentStats[5], count: professionalAreasCount }
           ]);
           this.loading.set(false);
+          this.canSeed.set(this.statistics().reduce((acc, stat) => acc + stat.count, 0) === 0);
         },
         error: (err) => {
           console.error('Error loading statistics', err);
@@ -97,5 +104,39 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.loading.set(false);
         }
       });
+  }
+
+  seedData() {
+    this.loading.set(true);
+    this.seedService.seedAll().subscribe(
+      {
+        next: () => {
+          this.loading.set(false);
+          this.loadStatistics();
+        },
+        error: (err) => {
+          console.error('Error seeding data', err);
+          this.error.set('Failed to seed data. Please try again.');
+          this.loading.set(false);
+        }
+      }
+    );
+  }
+
+  clearData() {
+    this.loading.set(true);
+    this.seedService.clearAll().subscribe(
+      {
+        next: () => {
+          this.loading.set(false);
+          this.loadStatistics();
+        },
+        error: (err) => {
+          console.error('Error clearing data', err);
+          this.error.set('Failed to clear data. Please try again.');
+          this.loading.set(false);
+        }
+      }
+    );
   }
 }
