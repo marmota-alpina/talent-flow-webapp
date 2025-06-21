@@ -15,12 +15,12 @@ import { RouterModule } from '@angular/router';
 export class DashboardComponent implements OnInit {
   // Statistics for the dashboard
   statistics = [
-    { name: 'Technologies', count: 0, icon: 'fa-cogs', color: 'blue', path: '/curation/technologies' },
-    { name: 'Soft Skills', count: 0, icon: 'fa-heart', color: 'teal', path: '/curation/soft-skills' },
-    { name: 'Languages', count: 0, icon: 'fa-language', color: 'indigo', path: '/curation/languages' },
-    { name: 'Proficiency Levels', count: 0, icon: 'fa-layer-group', color: 'amber', path: '/curation/proficiency-levels' },
-    { name: 'Experience Levels', count: 0, icon: 'fa-briefcase', color: 'green', path: '/curation/experience-levels' },
-    { name: 'Professional Areas', count: 0, icon: 'fa-sitemap', color: 'purple', path: '/curation/professional-areas' }
+    { name: 'Tecnologias', count: 0, icon: 'fa-cogs', color: 'blue', path: '/curation/technologies' },
+    { name: 'Habilidades Comportamentais', count: 0, icon: 'fa-heart', color: 'teal', path: '/curation/soft-skills' },
+    { name: 'Idiomas', count: 0, icon: 'fa-language', color: 'indigo', path: '/curation/languages' },
+    { name: 'Níveis de Proficiência', count: 0, icon: 'fa-layer-group', color: 'amber', path: '/curation/proficiency-levels' },
+    { name: 'Níveis de Experiência', count: 0, icon: 'fa-briefcase', color: 'green', path: '/curation/experience-levels' },
+    { name: 'Áreas Profissionais', count: 0, icon: 'fa-sitemap', color: 'purple', path: '/curation/professional-areas' }
   ];
 
   ngOnInit(): void {

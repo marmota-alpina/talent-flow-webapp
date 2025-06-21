@@ -1,5 +1,5 @@
 <div class="container mx-auto p-4">
-  <h1 class="text-2xl font-bold mb-4">Experience Levels Management</h1>
+  <h1 class="text-2xl font-bold mb-4">Gerenciamento de Níveis de Experiência</h1>
 
   <!-- Loading and Error States -->
   @if (loading()) {
@@ -22,7 +22,7 @@
       [class.border-b-2]="currentView() === CurationItemStatus.ACTIVE"
       [class.border-primary]="currentView() === CurationItemStatus.ACTIVE"
       [class.font-semibold]="currentView() === CurationItemStatus.ACTIVE">
-      Active Experience Levels
+      Níveis de Experiência Ativos
     </button>
     <button
       (click)="switchView(CurationItemStatus.ARCHIVED)"
@@ -30,7 +30,7 @@
       [class.border-b-2]="currentView() === CurationItemStatus.ARCHIVED"
       [class.border-primary]="currentView() === CurationItemStatus.ARCHIVED"
       [class.font-semibold]="currentView() === CurationItemStatus.ARCHIVED">
-      Archived Experience Levels
+      Níveis de Experiência Arquivados
     </button>
   </div>
 
@@ -39,7 +39,7 @@
     <button
       (click)="openCreateModal()"
       class="bg-primary text-white py-2 px-4 rounded hover:bg-blue-700">
-      Add New Experience Level
+      Adicionar Novo Nível de Experiência
     </button>
   </div>
 
@@ -48,12 +48,12 @@
     <table class="min-w-full bg-white border border-gray-200">
       <thead>
         <tr class="bg-gray-100">
-          <th class="py-2 px-4 border-b text-left">Name</th>
-          <th class="py-2 px-4 border-b text-left">Description</th>
-          <th class="py-2 px-4 border-b text-left">Level</th>
-          <th class="py-2 px-4 border-b text-left">Years Range</th>
-          <th class="py-2 px-4 border-b text-left">Color</th>
-          <th class="py-2 px-4 border-b text-left">Actions</th>
+          <th class="py-2 px-4 border-b text-left">Nome</th>
+          <th class="py-2 px-4 border-b text-left">Descrição</th>
+          <th class="py-2 px-4 border-b text-left">Nível</th>
+          <th class="py-2 px-4 border-b text-left">Faixa de Anos</th>
+          <th class="py-2 px-4 border-b text-left">Cor</th>
+          <th class="py-2 px-4 border-b text-left">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -70,14 +70,14 @@
               <button
                 (click)="openEditModal(level)"
                 class="text-blue-600 hover:text-blue-800 mr-2">
-                Edit
+                Editar
               </button>
 
               @if (level.status === CurationItemStatus.ACTIVE) {
                 <button
                   (click)="archiveItem(level.id!)"
                   class="text-red-600 hover:text-red-800">
-                  Archive
+                  Arquivar
                 </button>
               }
 
@@ -85,7 +85,7 @@
                 <button
                   (click)="unarchiveItem(level.id!)"
                   class="text-green-600 hover:text-green-800">
-                  Restore
+                  Restaurar
                 </button>
               }
             </td>
@@ -93,7 +93,7 @@
         } @empty {
           <tr>
             <td colspan="6" class="py-4 text-center text-gray-500">
-              No experience levels found. Click "Add New Experience Level" to create one.
+              Nenhum nível de experiência encontrado. Clique em "Adicionar Novo Nível de Experiência" para criar um.
             </td>
           </tr>
         }
@@ -107,39 +107,39 @@
       <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
         <div class="p-4 border-b">
           <h2 class="text-xl font-semibold">
-            {{ currentItem() ? 'Edit Experience Level' : 'Add New Experience Level' }}
+            {{ currentItem() ? 'Editar Nível de Experiência' : 'Adicionar Novo Nível de Experiência' }}
           </h2>
         </div>
 
         <div class="p-4">
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
-              Name *
+              Nome *
             </label>
             <input
               id="name"
               type="text"
               [(ngModel)]="formModel.name"
               class="form-input w-full"
-              placeholder="Enter experience level name"
+              placeholder="Digite o nome do nível de experiência"
               required>
           </div>
 
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
-              Description
+              Descrição
             </label>
             <textarea
               id="description"
               [(ngModel)]="formModel.description"
               class="form-input w-full"
-              placeholder="Enter experience level description"
+              placeholder="Digite a descrição do nível de experiência"
               rows="3"></textarea>
           </div>
 
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="level">
-              Level (1-5)
+              Nível (1-5)
             </label>
             <input
               id="level"
@@ -152,19 +152,19 @@
 
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="yearsRange">
-              Years Range
+              Faixa de Anos
             </label>
             <input
               id="yearsRange"
               type="text"
               [(ngModel)]="formModel.yearsRange"
               class="form-input w-full"
-              placeholder="e.g. 0-2 years, 3-5 years">
+              placeholder="ex: 0-2 anos, 3-5 anos">
           </div>
 
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="color">
-              Color
+              Cor
             </label>
             <select
               id="color"
@@ -184,7 +184,7 @@
           <button
             (click)="closeModal()"
             class="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400 mr-2">
-            Cancel
+            Cancelar
           </button>
           <button
             (click)="onSave()"
@@ -192,7 +192,7 @@
             class="bg-primary text-white py-2 px-4 rounded hover:bg-blue-700"
             [class.opacity-50]="!formModel.name"
             [class.cursor-not-allowed]="!formModel.name">
-            Save
+            Salvar
           </button>
         </div>
       </div>

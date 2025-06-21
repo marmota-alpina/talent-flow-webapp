@@ -1,5 +1,5 @@
 <div class="container mx-auto p-4">
-  <h1 class="text-2xl font-bold mb-4">Technologies Management</h1>
+  <h1 class="text-2xl font-bold mb-4">Gerenciamento de Tecnologias</h1>
 
   <!-- Loading and Error States -->
   @if (loading()) {
@@ -22,7 +22,7 @@
       [class.border-b-2]="currentView() === CurationItemStatus.ACTIVE"
       [class.border-primary]="currentView() === CurationItemStatus.ACTIVE"
       [class.font-semibold]="currentView() === CurationItemStatus.ACTIVE">
-      Active Technologies
+      Tecnologias Ativas
     </button>
     <button
       (click)="switchView(CurationItemStatus.ARCHIVED)"
@@ -30,7 +30,7 @@
       [class.border-b-2]="currentView() === CurationItemStatus.ARCHIVED"
       [class.border-primary]="currentView() === CurationItemStatus.ARCHIVED"
       [class.font-semibold]="currentView() === CurationItemStatus.ARCHIVED">
-      Archived Technologies
+      Tecnologias Arquivadas
     </button>
   </div>
 
@@ -39,7 +39,7 @@
     <button
       (click)="openCreateModal()"
       class="bg-primary text-white py-2 px-4 rounded hover:bg-blue-700">
-      Add New Technology
+      Adicionar Nova Tecnologia
     </button>
   </div>
 
@@ -48,11 +48,11 @@
     <table class="min-w-full bg-white border border-gray-200">
       <thead>
         <tr class="bg-gray-100">
-          <th class="py-2 px-4 border-b text-left">Name</th>
-          <th class="py-2 px-4 border-b text-left">Description</th>
-          <th class="py-2 px-4 border-b text-left">Category</th>
-          <th class="py-2 px-4 border-b text-left">Popularity</th>
-          <th class="py-2 px-4 border-b text-left">Actions</th>
+          <th class="py-2 px-4 border-b text-left">Nome</th>
+          <th class="py-2 px-4 border-b text-left">Descrição</th>
+          <th class="py-2 px-4 border-b text-left">Categoria</th>
+          <th class="py-2 px-4 border-b text-left">Popularidade</th>
+          <th class="py-2 px-4 border-b text-left">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -66,14 +66,14 @@
               <button
                 (click)="openEditModal(tech)"
                 class="text-blue-600 hover:text-blue-800 mr-2">
-                Edit
+                Editar
               </button>
 
               @if (tech.status === CurationItemStatus.ACTIVE) {
                 <button
                   (click)="archiveItem(tech.id!)"
                   class="text-red-600 hover:text-red-800">
-                  Archive
+                  Arquivar
                 </button>
               }
 
@@ -81,7 +81,7 @@
                 <button
                   (click)="unarchiveItem(tech.id!)"
                   class="text-green-600 hover:text-green-800">
-                  Restore
+                  Restaurar
                 </button>
               }
             </td>
@@ -89,7 +89,7 @@
         } @empty {
           <tr>
             <td colspan="5" class="py-4 text-center text-gray-500">
-              No technologies found. Click "Add New Technology" to create one.
+              Nenhuma tecnologia encontrada. Clique em "Adicionar Nova Tecnologia" para criar uma.
             </td>
           </tr>
         }
@@ -103,39 +103,39 @@
       <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
         <div class="p-4 border-b">
           <h2 class="text-xl font-semibold">
-            {{ currentItem() ? 'Edit Technology' : 'Add New Technology' }}
+            {{ currentItem() ? 'Editar Tecnologia' : 'Adicionar Nova Tecnologia' }}
           </h2>
         </div>
 
         <div class="p-4">
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
-              Name *
+              Nome *
             </label>
             <input
               id="name"
               type="text"
               [(ngModel)]="formModel.name"
               class="form-input w-full"
-              placeholder="Enter technology name"
+              placeholder="Digite o nome da tecnologia"
               required>
           </div>
 
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
-              Description
+              Descrição
             </label>
             <textarea
               id="description"
               [(ngModel)]="formModel.description"
               class="form-input w-full"
-              placeholder="Enter technology description"
+              placeholder="Digite a descrição da tecnologia"
               rows="3"></textarea>
           </div>
 
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="category">
-              Category
+              Categoria
             </label>
             <select
               id="category"
@@ -151,19 +151,19 @@
 
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="icon">
-              Icon (URL)
+              Ícone (URL)
             </label>
             <input
               id="icon"
               type="text"
               [(ngModel)]="formModel.icon"
               class="form-input w-full"
-              placeholder="Enter icon URL">
+              placeholder="Digite a URL do ícone">
           </div>
 
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="popularity">
-              Popularity (0-100)
+              Popularidade (0-100)
             </label>
             <input
               id="popularity"
@@ -179,7 +179,7 @@
           <button
             (click)="closeModal()"
             class="bg-gray-300 text-gray-800 py-2 px-4 rounded hover:bg-gray-400 mr-2">
-            Cancel
+            Cancelar
           </button>
           <button
             (click)="onSave()"
@@ -187,7 +187,7 @@
             class="bg-primary text-white py-2 px-4 rounded hover:bg-blue-700"
             [class.opacity-50]="!formModel.name"
             [class.cursor-not-allowed]="!formModel.name">
-            Save
+            Salvar
           </button>
         </div>
       </div>

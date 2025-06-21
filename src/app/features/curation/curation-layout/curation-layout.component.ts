@@ -15,12 +15,12 @@ import { RouterModule } from '@angular/router';
 export class CurationLayoutComponent {
   // Navigation items for the sidebar
   navItems = [
-    { path: '/curation/dashboard', relativePath: 'dashboard', label: 'Dashboard', icon: 'fa-tachometer-alt' },
-    { path: '/curation/technologies', relativePath: 'technologies', label: 'Technologies', icon: 'fa-cogs' },
-    { path: '/curation/soft-skills', relativePath: 'soft-skills', label: 'Soft Skills', icon: 'fa-heart' },
-    { path: '/curation/languages', relativePath: 'languages', label: 'Languages', icon: 'fa-language' },
-    { path: '/curation/proficiency-levels', relativePath: 'proficiency-levels', label: 'Proficiency Levels', icon: 'fa-layer-group' },
-    { path: '/curation/experience-levels', relativePath: 'experience-levels', label: 'Experience Levels', icon: 'fa-briefcase' },
-    { path: '/curation/professional-areas', relativePath: 'professional-areas', label: 'Professional Areas', icon: 'fa-sitemap' }
+    { path: '/curation/dashboard', relativePath: 'dashboard', label: 'Painel', icon: 'fa-tachometer-alt' },
+    { path: '/curation/technologies', relativePath: 'technologies', label: 'Tecnologias', icon: 'fa-cogs' },
+    { path: '/curation/soft-skills', relativePath: 'soft-skills', label: 'Habilidades Comportamentais', icon: 'fa-heart' },
+    { path: '/curation/languages', relativePath: 'languages', label: 'Idiomas', icon: 'fa-language' },
+    { path: '/curation/proficiency-levels', relativePath: 'proficiency-levels', label: 'Níveis de Proficiência', icon: 'fa-layer-group' },
+    { path: '/curation/experience-levels', relativePath: 'experience-levels', label: 'Níveis de Experiência', icon: 'fa-briefcase' },
+    { path: '/curation/professional-areas', relativePath: 'professional-areas', label: 'Áreas Profissionais', icon: 'fa-sitemap' }
   ];
 }
