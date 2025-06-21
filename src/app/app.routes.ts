@@ -46,6 +46,13 @@ export const routes: Routes = [
         canActivate: [roleGuard(['recruiter', 'admin'])]
       },
 
+      // Rota de Curadoria (apenas Admin)
+      {
+        path: 'curation',
+        loadChildren: () => import('./features/curation/curation.routes').then(m => m.curationRoutes),
+        canActivate: [roleGuard(['admin'])]
+      },
+
       // Redirecionamento padrão para o dashboard
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

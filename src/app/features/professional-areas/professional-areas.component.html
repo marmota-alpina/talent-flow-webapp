@@ -1,5 +1,5 @@
 <div class="container mx-auto p-4">
-  <h1 class="text-2xl font-bold mb-4">Gerenciamento de Tecnologias</h1>
+  <h1 class="text-2xl font-bold mb-4">Gerenciamento de Áreas Profissionais</h1>
 
   <!-- Loading and Error States -->
   @if (loading()) {
@@ -22,7 +22,7 @@
       [class.border-b-2]="currentView() === CurationItemStatus.ACTIVE"
       [class.border-primary]="currentView() === CurationItemStatus.ACTIVE"
       [class.font-semibold]="currentView() === CurationItemStatus.ACTIVE">
-      Tecnologias Ativas
+      Áreas Profissionais Ativas
     </button>
     <button
       (click)="switchView(CurationItemStatus.ARCHIVED)"
@@ -30,7 +30,7 @@
       [class.border-b-2]="currentView() === CurationItemStatus.ARCHIVED"
       [class.border-primary]="currentView() === CurationItemStatus.ARCHIVED"
       [class.font-semibold]="currentView() === CurationItemStatus.ARCHIVED">
-      Tecnologias Arquivadas
+      Áreas Profissionais Arquivadas
     </button>
   </div>
 
@@ -39,47 +39,49 @@
     <button
       (click)="openCreateModal()"
       class="bg-primary text-white py-2 px-4 rounded hover:bg-blue-700">
-      Adicionar Nova Tecnologia
+      Adicionar Nova Área Profissional
     </button>
   </div>
 
-  <!-- Technologies Table -->
+  <!-- Professional Areas Table -->
   <div class="overflow-x-auto">
     <table class="min-w-full bg-white border border-gray-200">
       <thead>
         <tr class="bg-gray-100">
           <th class="py-2 px-4 border-b text-left">Nome</th>
+          <th class="py-2 px-4 border-b text-left">Código</th>
           <th class="py-2 px-4 border-b text-left">Descrição</th>
-          <th class="py-2 px-4 border-b text-left">Categoria</th>
+          <th class="py-2 px-4 border-b text-left">Área Principal</th>
           <th class="py-2 px-4 border-b text-left">Popularidade</th>
           <th class="py-2 px-4 border-b text-left">Ações</th>
         </tr>
       </thead>
       <tbody>
-        @for (tech of displayedItems(); track tech.id) {
+        @for (area of displayedItems(); track area.id) {
           <tr class="hover:bg-gray-50">
-            <td class="py-2 px-4 border-b">{{ tech.name }}</td>
-            <td class="py-2 px-4 border-b">{{ tech.description }}</td>
-            <td class="py-2 px-4 border-b">{{ getCategoryLabel(tech) }}</td>
-            <td class="py-2 px-4 border-b">{{ tech.popularity || 0 }}</td>
+            <td class="py-2 px-4 border-b">{{ area.name }}</td>
+            <td class="py-2 px-4 border-b">{{ getCodeDisplay(area) }}</td>
+            <td class="py-2 px-4 border-b">{{ area.description }}</td>
+            <td class="py-2 px-4 border-b">{{ area.parentArea }}</td>
+            <td class="py-2 px-4 border-b">{{ area.popularity || 0 }}</td>
             <td class="py-2 px-4 border-b">
               <button
-                (click)="openEditModal(tech)"
+                (click)="openEditModal(area)"
                 class="text-blue-600 hover:text-blue-800 mr-2">
                 Editar
               </button>
 
-              @if (tech.status === CurationItemStatus.ACTIVE) {
+              @if (area.status === CurationItemStatus.ACTIVE) {
                 <button
-                  (click)="archiveItem(tech.id!)"
+                  (click)="archiveItem(area.id!)"
                   class="text-red-600 hover:text-red-800">
                   Arquivar
                 </button>
               }
 
-              @if (tech.status === CurationItemStatus.ARCHIVED) {
+              @if (area.status === CurationItemStatus.ARCHIVED) {
                 <button
-                  (click)="unarchiveItem(tech.id!)"
+                  (click)="unarchiveItem(area.id!)"
                   class="text-green-600 hover:text-green-800">
                   Restaurar
                 </button>
@@ -88,8 +90,8 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="5" class="py-4 text-center text-gray-500">
-              Nenhuma tecnologia encontrada. Clique em "Adicionar Nova Tecnologia" para criar uma.
+            <td colspan="6" class="py-4 text-center text-gray-500">
+              Nenhuma área profissional encontrada. Clique em "Adicionar Nova Área Profissional" para criar uma.
             </td>
           </tr>
         }
@@ -103,7 +105,7 @@
       <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
         <div class="p-4 border-b">
           <h2 class="text-xl font-semibold">
-            {{ currentItem() ? 'Editar Tecnologia' : 'Adicionar Nova Tecnologia' }}
+            {{ currentItem() ? 'Editar Área Profissional' : 'Adicionar Nova Área Profissional' }}
           </h2>
         </div>
 
@@ -117,8 +119,25 @@
               type="text"
               [(ngModel)]="formModel.name"
               class="form-input w-full"
-              placeholder="Digite o nome da tecnologia"
+              placeholder="Digite o nome da área profissional"
               required>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="code">
+              Código
+            </label>
+            <select
+              id="code"
+              [(ngModel)]="formModel.code"
+              class="form-input w-full">
+              <option value="">-- Selecione um código --</option>
+              @for (code of ProfessionalAreaCode | keyvalue; track code.key) {
+                <option [value]="code.value">
+                  {{ code.value }} ({{ code.key }})
+                </option>
+              }
+            </select>
           </div>
 
           <div class="mb-4">
@@ -129,36 +148,20 @@
               id="description"
               [(ngModel)]="formModel.description"
               class="form-input w-full"
-              placeholder="Digite a descrição da tecnologia"
+              placeholder="Digite a descrição da área profissional"
               rows="3"></textarea>
           </div>
 
           <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="category">
-              Categoria
-            </label>
-            <select
-              id="category"
-              [(ngModel)]="formModel.category"
-              class="form-input w-full">
-              @for (cat of TechnologyCategory | keyvalue; track cat.key) {
-                <option [value]="cat.value">
-                  {{ cat.value }}
-                </option>
-              }
-            </select>
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="icon">
-              Ícone (URL)
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="parentArea">
+              Área Principal
             </label>
             <input
-              id="icon"
+              id="parentArea"
               type="text"
-              [(ngModel)]="formModel.icon"
+              [(ngModel)]="formModel.parentArea"
               class="form-input w-full"
-              placeholder="Digite a URL do ícone">
+              placeholder="Digite a área principal (se aplicável)">
           </div>
 
           <div class="mb-4">

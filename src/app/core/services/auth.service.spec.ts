@@ -2,7 +2,7 @@ import { Router } from '@angular/router';
 import { Auth, User, UserCredential } from '@angular/fire/auth';
 import { Firestore, Timestamp, DocumentData, DocumentReference, DocumentSnapshot } from '@angular/fire/firestore';
 import { Injector } from '@angular/core';
-import {BehaviorSubject, firstValueFrom} from 'rxjs';
+import { BehaviorSubject, firstValueFrom} from 'rxjs';
 
 import { AuthService, AUTH_STATE_FN, SIGN_IN_WITH_POPUP_FN, DOC_FN, GET_DOC_FN, SET_DOC_FN, SERVER_TIMESTAMP_FN } from './auth.service';
 import { UserProfile } from '../../models/user-profile.model';

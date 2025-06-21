@@ -1,5 +1,5 @@
 <div class="container mx-auto p-4">
-  <h1 class="text-2xl font-bold mb-4">Gerenciamento de Tecnologias</h1>
+  <h1 class="text-2xl font-bold mb-4">Gerenciamento de Níveis de Proficiência</h1>
 
   <!-- Loading and Error States -->
   @if (loading()) {
@@ -22,7 +22,7 @@
       [class.border-b-2]="currentView() === CurationItemStatus.ACTIVE"
       [class.border-primary]="currentView() === CurationItemStatus.ACTIVE"
       [class.font-semibold]="currentView() === CurationItemStatus.ACTIVE">
-      Tecnologias Ativas
+      Níveis de Proficiência Ativos
     </button>
     <button
       (click)="switchView(CurationItemStatus.ARCHIVED)"
@@ -30,7 +30,7 @@
       [class.border-b-2]="currentView() === CurationItemStatus.ARCHIVED"
       [class.border-primary]="currentView() === CurationItemStatus.ARCHIVED"
       [class.font-semibold]="currentView() === CurationItemStatus.ARCHIVED">
-      Tecnologias Arquivadas
+      Níveis de Proficiência Arquivados
     </button>
   </div>
 
@@ -39,47 +39,49 @@
     <button
       (click)="openCreateModal()"
       class="bg-primary text-white py-2 px-4 rounded hover:bg-blue-700">
-      Adicionar Nova Tecnologia
+      Adicionar Novo Nível de Proficiência
     </button>
   </div>
 
-  <!-- Technologies Table -->
+  <!-- Proficiency Levels Table -->
   <div class="overflow-x-auto">
     <table class="min-w-full bg-white border border-gray-200">
       <thead>
         <tr class="bg-gray-100">
           <th class="py-2 px-4 border-b text-left">Nome</th>
           <th class="py-2 px-4 border-b text-left">Descrição</th>
-          <th class="py-2 px-4 border-b text-left">Categoria</th>
-          <th class="py-2 px-4 border-b text-left">Popularidade</th>
+          <th class="py-2 px-4 border-b text-left">Nível</th>
+          <th class="py-2 px-4 border-b text-left">Cor</th>
           <th class="py-2 px-4 border-b text-left">Ações</th>
         </tr>
       </thead>
       <tbody>
-        @for (tech of displayedItems(); track tech.id) {
+        @for (level of displayedItems(); track level.id) {
           <tr class="hover:bg-gray-50">
-            <td class="py-2 px-4 border-b">{{ tech.name }}</td>
-            <td class="py-2 px-4 border-b">{{ tech.description }}</td>
-            <td class="py-2 px-4 border-b">{{ getCategoryLabel(tech) }}</td>
-            <td class="py-2 px-4 border-b">{{ tech.popularity || 0 }}</td>
+            <td class="py-2 px-4 border-b">{{ level.name }}</td>
+            <td class="py-2 px-4 border-b">{{ level.description }}</td>
+            <td class="py-2 px-4 border-b">{{ level.level }}</td>
+            <td class="py-2 px-4 border-b">
+              <div class="w-6 h-6 rounded" [ngStyle]="getColorStyle(level)"></div>
+            </td>
             <td class="py-2 px-4 border-b">
               <button
-                (click)="openEditModal(tech)"
+                (click)="openEditModal(level)"
                 class="text-blue-600 hover:text-blue-800 mr-2">
                 Editar
               </button>
 
-              @if (tech.status === CurationItemStatus.ACTIVE) {
+              @if (level.status === CurationItemStatus.ACTIVE) {
                 <button
-                  (click)="archiveItem(tech.id!)"
+                  (click)="archiveItem(level.id!)"
                   class="text-red-600 hover:text-red-800">
                   Arquivar
                 </button>
               }
 
-              @if (tech.status === CurationItemStatus.ARCHIVED) {
+              @if (level.status === CurationItemStatus.ARCHIVED) {
                 <button
-                  (click)="unarchiveItem(tech.id!)"
+                  (click)="unarchiveItem(level.id!)"
                   class="text-green-600 hover:text-green-800">
                   Restaurar
                 </button>
@@ -89,7 +91,7 @@
         } @empty {
           <tr>
             <td colspan="5" class="py-4 text-center text-gray-500">
-              Nenhuma tecnologia encontrada. Clique em "Adicionar Nova Tecnologia" para criar uma.
+              Nenhum nível de proficiência encontrado. Clique em "Adicionar Novo Nível de Proficiência" para criar um.
             </td>
           </tr>
         }
@@ -103,7 +105,7 @@
       <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
         <div class="p-4 border-b">
           <h2 class="text-xl font-semibold">
-            {{ currentItem() ? 'Editar Tecnologia' : 'Adicionar Nova Tecnologia' }}
+            {{ currentItem() ? 'Editar Nível de Proficiência' : 'Adicionar Novo Nível de Proficiência' }}
           </h2>
         </div>
 
@@ -117,7 +119,7 @@
               type="text"
               [(ngModel)]="formModel.name"
               class="form-input w-full"
-              placeholder="Digite o nome da tecnologia"
+              placeholder="Digite o nome do nível de proficiência"
               required>
           </div>
 
@@ -129,49 +131,38 @@
               id="description"
               [(ngModel)]="formModel.description"
               class="form-input w-full"
-              placeholder="Digite a descrição da tecnologia"
+              placeholder="Digite a descrição do nível de proficiência"
               rows="3"></textarea>
           </div>
 
           <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="category">
-              Categoria
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="level">
+              Nível (1-5)
+            </label>
+            <input
+              id="level"
+              type="number"
+              [(ngModel)]="formModel.level"
+              class="form-input w-full"
+              min="1"
+              max="5">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="color">
+              Cor
             </label>
             <select
-              id="category"
-              [(ngModel)]="formModel.category"
+              id="color"
+              [(ngModel)]="formModel.color"
               class="form-input w-full">
-              @for (cat of TechnologyCategory | keyvalue; track cat.key) {
-                <option [value]="cat.value">
-                  {{ cat.value }}
+              @for (color of ProficiencyLevelColor | keyvalue; track color.key) {
+                <option [value]="color.value">
+                  {{ color.key }}
                 </option>
               }
             </select>
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="icon">
-              Ícone (URL)
-            </label>
-            <input
-              id="icon"
-              type="text"
-              [(ngModel)]="formModel.icon"
-              class="form-input w-full"
-              placeholder="Digite a URL do ícone">
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="popularity">
-              Popularidade (0-100)
-            </label>
-            <input
-              id="popularity"
-              type="number"
-              [(ngModel)]="formModel.popularity"
-              class="form-input w-full"
-              min="0"
-              max="100">
+            <div class="mt-2 w-full h-6 rounded" [style.background-color]="formModel.color"></div>
           </div>
         </div>
 

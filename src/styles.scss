@@ -6,3 +6,9 @@
 .form-input {
   @apply border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#2563EB];
 }
+
+#main-layout {
+  min-width: 220px;
+}
+
+html, body { height: 100%; }
