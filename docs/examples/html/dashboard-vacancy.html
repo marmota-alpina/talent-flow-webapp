@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Talent Flow</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest' }; </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: "#2563EB", secondary: "#F3F4F6", accent: "#14B8A6" },
+          fontFamily: { inter: ["Inter", "sans-serif"] }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+  <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-secondary">
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Dashboard do Recrutador</h1>
+    <p class="text-gray-600 mt-1">Bem-vindo(a)! Aqui está um resumo das suas atividades.</p>
+  </header>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Vagas Ativas</p>
+        <p class="text-3xl font-bold text-gray-900">12</p>
+      </div>
+      <div class="bg-blue-100 text-primary p-3 rounded-full">
+        <i class="fas fa-briefcase fa-lg"></i>
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Candidatos Totais</p>
+        <p class="text-3xl font-bold text-gray-900">1,437</p>
+      </div>
+      <div class="bg-green-100 text-green-600 p-3 rounded-full">
+        <i class="fas fa-users fa-lg"></i>
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Novos Candidatos (24h)</p>
+        <p class="text-3xl font-bold text-gray-900">28</p>
+      </div>
+      <div class="bg-yellow-100 text-yellow-600 p-3 rounded-full">
+        <i class="fas fa-user-plus fa-lg"></i>
+      </div>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Triagens Pendentes</p>
+        <p class="text-3xl font-bold text-gray-900">7</p>
+      </div>
+      <div class="bg-red-100 text-red-600 p-3 rounded-full">
+        <i class="fas fa-inbox fa-lg"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Vagas com Candidatos para Triagem</h2>
+      <div class="space-y-4">
+        <div class="p-4 border rounded-lg flex items-center justify-between hover:bg-gray-50">
+          <div>
+            <p class="font-bold text-gray-900">Engenheiro(a) de Software Backend Sênior</p>
+            <p class="text-sm text-gray-500">15 novos candidatos</p>
+          </div>
+          <a href="#" class="bg-primary text-white font-semibold px-4 py-2 rounded-lg text-sm">Ver Candidatos</a>
+        </div>
+        <div class="p-4 border rounded-lg flex items-center justify-between hover:bg-gray-50">
+          <div>
+            <p class="font-bold text-gray-900">Desenvolvedor(a) Frontend Pleno (Angular)</p>
+            <p class="text-sm text-gray-500">8 novos candidatos</p>
+          </div>
+          <a href="#" class="bg-primary text-white font-semibold px-4 py-2 rounded-lg text-sm">Ver Candidatos</a>
+        </div>
+        <div class="p-4 border rounded-lg flex items-center justify-between hover:bg-gray-50">
+          <div>
+            <p class="font-bold text-gray-900">Designer de Produto (UX/UI) Pleno</p>
+            <p class="text-sm text-gray-500">5 novos candidatos</p>
+          </div>
+          <a href="#" class="bg-primary text-white font-semibold px-4 py-2 rounded-lg text-sm">Ver Candidatos</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Ações Rápidas</h2>
+      <div class="space-y-3">
+        <a href="/vacancy-management/new" class="w-full flex items-center gap-3 p-4 bg-primary text-white rounded-lg hover:bg-opacity-90">
+          <i class="fas fa-plus-circle fa-lg"></i>
+          <span class="font-semibold">Criar Nova Vaga</span>
+        </a>
+        <a href="/vacancy-management" class="w-full flex items-center gap-3 p-4 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">
+          <i class="fas fa-tasks fa-lg"></i>
+          <span class="font-semibold">Gerenciar Todas as Vagas</span>
+        </a>
+        <a href="/curation" class="w-full flex items-center gap-3 p-4 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">
+          <i class="fas fa-cogs fa-lg"></i>
+          <span class="font-semibold">Acessar Curadoria</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
