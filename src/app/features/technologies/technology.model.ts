@@ -19,5 +19,8 @@ export enum TechnologyCategory {
   DATABASE = 'Database',
   DEVOPS = 'DevOps',
   MOBILE = 'Mobile',
+  CLOUD = 'Cloud',
+  AI = 'AI',
+  DESIGN = 'Design',
   OTHER = 'Other'
 }

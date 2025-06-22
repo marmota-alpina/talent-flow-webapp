@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciamento de Vagas - Talent Flow</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest' }; </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: "#2563EB", secondary: "#F3F4F6", accent: "#14B8A6" },
+          fontFamily: { inter: ["Inter", "sans-serif"] }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+  <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-secondary">
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <main>
+    <div class="bg-white rounded-lg shadow-sm">
+      <div class="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Gerenciamento de Vagas</h1>
+          <p class="text-gray-600 mt-1">Visualize, filtre e edite todas as vagas do sistema.</p>
+        </div>
+        <a href="/vacancy-management/new" class="bg-primary text-white font-semibold px-5 py-2 rounded-lg hover:bg-opacity-90 transition-colors flex items-center gap-2">
+          <i class="fas fa-plus"></i>
+          <span>Criar Nova Vaga</span>
+        </a>
+      </div>
+
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input type="text" placeholder="Buscar por título..." class="md:col-span-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+          <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="">Todos os Status</option>
+            <option value="active">Ativa</option>
+            <option value="archived">Arquivada</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead class="bg-gray-50">
+          <tr>
+            <th class="p-4 font-semibold text-gray-600">Título da Vaga</th>
+            <th class="p-4 font-semibold text-gray-600">Nível</th>
+            <th class="p-4 font-semibold text-gray-600">Candidatos</th>
+            <th class="p-4 font-semibold text-gray-600">Status</th>
+            <th class="p-4 font-semibold text-gray-600 text-right">Ações</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="border-b border-gray-200">
+            <td class="p-4 text-gray-800 font-medium">Engenheiro(a) de Software Backend Sênior</td>
+            <td class="p-4 text-gray-500">Sênior</td>
+            <td class="p-4 text-gray-500">25 (15 novos)</td>
+            <td class="p-4"><span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">Ativa</span></td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <a href="#" class="text-blue-600 hover:text-blue-800 mr-4"><i class="fas fa-users"></i> Candidatos</a>
+              <a href="/vacancy-management/edit/1" class="text-blue-600 hover:text-blue-800 mr-4"><i class="fas fa-pencil-alt"></i> Editar</a>
+              <button class="text-red-600 hover:text-red-800"><i class="fas fa-archive"></i> Arquivar</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

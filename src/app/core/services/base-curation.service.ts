@@ -10,9 +10,11 @@ import {
   query,
   where,
   orderBy,
-  getCountFromServer
+  getCountFromServer,
+  getDocs,
+  deleteDoc
 } from '@angular/fire/firestore';
-import { Observable, from } from 'rxjs';
+import { Observable, from, switchMap } from 'rxjs';
 import { CurationItem, CurationItemStatus } from '../../models/curation-item.model';
 
 /**
@@ -69,19 +71,19 @@ export abstract class BaseCurationService<T extends CurationItem> {
   }
 
   /**
-   * Update an existing item in the collection.
+   * Update an existing item in the collection
    * @param id ID of the item to update
    * @param item Updated item data
    * @returns Observable that completes when the operation is done
    */
-  update(id: string, item: Partial<T>): Observable<void> {
-    const docRef = doc(this.firestore, this.collectionName, id);
+  update(id: string, item: Partial<Omit<T, 'id' | 'createdAt' | 'updatedAt'>>): Observable<void> {
+    const itemDoc = doc(this.firestore, `${this.collectionName}/${id}`);
     const updatedItem = {
       ...item,
       updatedAt: serverTimestamp()
     };
-    // Cast to { [key: string]: any } is safe and often necessary for updateDoc's signature
-    return from(updateDoc(docRef, updatedItem as { [key: string]: any }));
+
+    return from(updateDoc(itemDoc, updatedItem));
   }
 
   /**
@@ -115,5 +117,20 @@ export abstract class BaseCurationService<T extends CurationItem> {
       where('status', '==', status)
     );
     return from(getCountFromServer(itemsQuery).then(snapshot => snapshot.data().count));
+  }
+
+  clearAll(): Observable<void> {
+    const collectionRef = collection(this.firestore, this.collectionName);
+
+    return from(getDocs(collectionRef)).pipe(
+      switchMap((querySnapshot) => {
+        const deletions = querySnapshot.docs.map((document) => {
+          const docRef = doc(this.firestore, this.collectionName, document.id);
+          return deleteDoc(docRef);
+        });
+        return from(Promise.all(deletions));
+      }),
+      switchMap(() => from(Promise.resolve()))
+    );
   }
 }
