@@ -6,9 +6,9 @@ export interface CurationItem {
   id?: string;
   name: string;
   description?: string;
-  status: 'active' | 'archived';
-  createdAt?: Date;
-  updatedAt?: Date;
+  status: CurationItemStatus;
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 /**

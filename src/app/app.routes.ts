@@ -20,6 +20,14 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent,
+        canActivate: [roleGuard(['recruiter', 'admin'])],
+        data: { breadcrumb: 'Painel' }
+      },
+
+      {
+        path: 'vacancy-management',
+        loadChildren: () => import('./features/vacancy-management/vacancy.routes').then(m => m.vacancyRoutes),
+        canActivate: [roleGuard(['recruiter', 'admin'])]
       },
 
       // Rotas do Candidato

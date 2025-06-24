@@ -65,6 +65,11 @@ service cloud.firestore {
     match /vacancies/{vacancyId} {
       allow read: if true;
       allow write: if isRecruiterOrAdmin();
+
+      // Rules for candidates subcollection
+      match /candidates/{candidateId} {
+        allow read, write: if isRecruiterOrAdmin();
+      }
     }
 
     // Rules for resumes collection

@@ -1,0 +1,171 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <header class="mb-8">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">Gerenciamento de Vagas</h1>
+      <a routerLink="/vacancy-management/new" class="bg-primary text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
+        <i class="fas fa-plus-circle"></i> Nova Vaga
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Vagas Ativas</p>
+          <p class="text-3xl font-bold text-gray-900">{{ activeCount }}</p>
+        </div>
+        <div class="bg-blue-100 text-primary p-3 rounded-full">
+          <i class="fas fa-briefcase fa-lg"></i>
+        </div>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Vagas Arquivadas</p>
+          <p class="text-3xl font-bold text-gray-900">{{ archivedCount }}</p>
+        </div>
+        <div class="bg-gray-100 text-gray-600 p-3 rounded-full">
+          <i class="fas fa-archive fa-lg"></i>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="border-b border-gray-200 mb-8">
+    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+      <button
+        (click)="showArchived = false"
+        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+        [class.border-primary]="!showArchived"
+        [class.text-primary]="!showArchived"
+        [class.border-transparent]="showArchived"
+        [class.text-gray-500]="showArchived"
+        [class.hover:text-gray-700]="showArchived"
+        [class.hover:border-gray-300]="showArchived">
+        Vagas Ativas ({{ activeCount }})
+      </button>
+      <button
+        (click)="showArchived = true"
+        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+        [class.border-primary]="showArchived"
+        [class.text-primary]="showArchived"
+        [class.border-transparent]="!showArchived"
+        [class.text-gray-500]="!showArchived"
+        [class.hover:text-gray-700]="!showArchived"
+        [class.hover:border-gray-300]="!showArchived">
+        Vagas Arquivadas ({{ archivedCount }})
+      </button>
+    </nav>
+  </div>
+
+  <!-- Lista de Vagas Ativas -->
+  @if (!showArchived) {
+    <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vaga</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Área</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nível</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidatos</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @for (vacancy of activeVacancies$ | async; track vacancy.id) {
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <img class="h-10 w-10 rounded-full object-cover" [src]="vacancy.imageUrl || 'assets/images/placeholder.png'" alt="">
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">{{ vacancy.title }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ vacancy.area }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ vacancy.level }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <a [routerLink]="['/vacancy-management', vacancy.id, 'candidates']" class="text-primary hover:text-blue-800">
+                  Ver Candidatos
+                </a>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex justify-end gap-2">
+                  <a [routerLink]="['/vacancy-management/edit', vacancy.id]" class="text-indigo-600 hover:text-indigo-900">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button (click)="archiveVacancy(vacancy.id!)" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-archive"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if ((activeVacancies$ | async)?.length === 0) {
+            <tr>
+              <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                Nenhuma vaga ativa encontrada.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Lista de Vagas Arquivadas -->
+  @if (showArchived) {
+    <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vaga</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Área</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nível</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @for (vacancy of archivedVacancies$ | async; track vacancy.id) {
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <img class="h-10 w-10 rounded-full object-cover" [src]="vacancy.imageUrl || 'assets/images/placeholder.png'" alt="">
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">{{ vacancy.title }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ vacancy.area }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ vacancy.level }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex justify-end gap-2">
+                  <button (click)="unarchiveVacancy(vacancy.id!)" class="text-green-600 hover:text-green-900">
+                    <i class="fas fa-undo"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+          @if ((archivedVacancies$ | async)?.length === 0) {
+            <tr>
+              <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                Nenhuma vaga arquivada encontrada.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

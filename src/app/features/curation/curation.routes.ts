@@ -46,6 +46,10 @@ export const curationRoutes: Routes = [
         path: 'professional-areas',
         component: ProfessionalAreasComponent
       },
+      {
+        path: 'vacancy-management',
+        loadChildren: () => import('../vacancy-management/vacancy.routes').then(m => m.vacancyRoutes)
+      },
       // Other curation routes will be added here
       {
         path: '',

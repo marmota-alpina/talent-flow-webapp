@@ -1,0 +1,124 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <header class="mb-8">
+    <div class="min-w-0 flex-1 mb-6">
+      <p class="text-sm text-gray-500">Candidatos para a vaga:</p>
+      @if (vacancy(); as vac) {
+        <h1 class="text-3xl font-bold text-gray-900">{{ vac.title }}</h1>
+      } @else {
+        <div class="animate-pulse h-8 bg-gray-200 rounded w-2/3 mt-1"></div>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Total de Inscritos</p>
+          <p class="text-3xl font-bold text-gray-900">{{ totalCandidates() }}</p>
+        </div>
+        <div class="bg-blue-100 text-primary p-3 rounded-full"><i class="fas fa-users fa-lg"></i></div>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Aguardando Avaliação</p>
+          <p class="text-3xl font-bold text-gray-900">{{ newCandidates() }}</p>
+        </div>
+        <div class="bg-yellow-100 text-yellow-600 p-3 rounded-full"><i class="fas fa-inbox fa-lg"></i></div>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Total Aprovados</p>
+          <p class="text-3xl font-bold text-gray-900">{{ approvedCandidates() }}</p>
+        </div>
+        <div class="bg-green-100 text-green-600 p-3 rounded-full"><i class="fas fa-check-double fa-lg"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="border-b border-gray-200 mb-8">
+    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+      <button (click)="setActiveTab(AppStatus.NEW)" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary]="activeTab() === AppStatus.NEW" [class.text-primary]="activeTab() === AppStatus.NEW" [class.border-transparent]="activeTab() !== AppStatus.NEW" [class.text-gray-500]="activeTab() !== AppStatus.NEW" [class.hover:text-gray-700]="activeTab() !== AppStatus.NEW" [class.hover:border-gray-300]="activeTab() !== AppStatus.NEW">
+        Novos ({{ newCandidates() }})
+      </button>
+      <button (click)="setActiveTab(AppStatus.APPROVED)" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary]="activeTab() === AppStatus.APPROVED" [class.text-primary]="activeTab() === AppStatus.APPROVED" [class.border-transparent]="activeTab() !== AppStatus.APPROVED" [class.text-gray-500]="activeTab() !== AppStatus.APPROVED" [class.hover:text-gray-700]="activeTab() !== AppStatus.APPROVED" [class.hover:border-gray-300]="activeTab() !== AppStatus.APPROVED">
+        Aprovados ({{ approvedCandidates() }})
+      </button>
+      <button (click)="setActiveTab(AppStatus.REJECTED)" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" [class.border-primary]="activeTab() === AppStatus.REJECTED" [class.text-primary]="activeTab() === AppStatus.REJECTED" [class.border-transparent]="activeTab() !== AppStatus.REJECTED" [class.text-gray-500]="activeTab() !== AppStatus.REJECTED" [class.hover:text-gray-700]="activeTab() !== AppStatus.REJECTED" [class.hover:border-gray-300]="activeTab() !== AppStatus.REJECTED">
+        Rejeitados ({{ rejectedCandidates() }})
+      </button>
+    </nav>
+  </div>
+
+  @if (loadingCandidates()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="bg-white rounded-lg shadow-sm animate-pulse">
+          <div class="p-6">
+            <div class="flex items-center gap-4">
+              <div class="h-16 w-16 rounded-full bg-gray-200"></div>
+              <div class="flex-1">
+                <div class="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center justify-between"><div class="h-4 bg-gray-200 rounded w-1/4"></div><div class="h-6 bg-gray-200 rounded w-12"></div></div>
+            <div class="relative pt-1 mt-1"><div class="h-2 bg-gray-200 rounded"></div></div>
+            <div class="mt-4"><div class="h-4 bg-gray-200 rounded w-1/3 mb-2"></div><div class="flex flex-wrap gap-2"><div class="h-6 bg-gray-200 rounded w-16"></div><div class="h-6 bg-gray-200 rounded w-24"></div><div class="h-6 bg-gray-200 rounded w-20"></div></div></div>
+          </div>
+          <div class="p-4 bg-gray-50 border-t"><div class="flex justify-end gap-3"><div class="h-8 bg-gray-200 rounded w-20"></div><div class="h-8 bg-gray-200 rounded w-20"></div></div></div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (candidate of displayedApplications(); track candidate.id) {
+        <div class="bg-white rounded-lg shadow-sm flex flex-col justify-between">
+          <div class="p-6">
+            <div class="flex items-center gap-4">
+              <img class="h-16 w-16 rounded-full object-cover" [src]="candidate.photoUrl" [alt]="'Foto de ' + candidate.name">
+              <div>
+                <h3 class="text-lg font-bold text-gray-900">{{ candidate.name }}</h3>
+                <p class="text-sm text-gray-500">{{ candidate.position }}</p>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center justify-between">
+              <span class="text-sm text-gray-600">Aderência à vaga:</span>
+              <span class="font-bold text-lg" [class.text-green-600]="candidate.matchPercentage >= 80" [class.text-yellow-500]="candidate.matchPercentage >= 50 && candidate.matchPercentage < 80" [class.text-orange-500]="candidate.matchPercentage >= 30 && candidate.matchPercentage < 50" [class.text-red-500]="candidate.matchPercentage < 30">{{ candidate.matchPercentage }}%</span>
+            </div>
+            <div class="relative pt-1">
+              <div class="overflow-hidden h-2 text-xs flex rounded" [class.bg-green-200]="candidate.matchPercentage >= 80" [class.bg-yellow-200]="candidate.matchPercentage >= 50 && candidate.matchPercentage < 80" [class.bg-orange-200]="candidate.matchPercentage >= 30 && candidate.matchPercentage < 50" [class.bg-red-200]="candidate.matchPercentage < 30">
+                <div [style.width.%]="candidate.matchPercentage" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center" [class.bg-green-500]="candidate.matchPercentage >= 80" [class.bg-yellow-400]="candidate.matchPercentage >= 50 && candidate.matchPercentage < 80" [class.bg-orange-400]="candidate.matchPercentage >= 30 && candidate.matchPercentage < 50" [class.bg-red-500]="candidate.matchPercentage < 30"></div>
+              </div>
+            </div>
+            <div class="mt-4">
+              <p class="text-sm font-medium text-gray-700 mb-2">Principais Tecnologias:</p>
+              <div class="flex flex-wrap gap-2">
+                @for (tech of candidate.technologies; track tech.name) {
+                  <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full" [class.bg-blue-100]="tech.match" [class.text-blue-800]="tech.match" [class.bg-red-100]="!tech.match" [class.text-red-800]="!tech.match" [class.line-through]="!tech.match">{{ tech.name }}</span>
+                }
+              </div>
+            </div>
+            <div class="mt-4"><a href="#" class="text-primary font-semibold text-sm hover:underline">Ver Perfil Completo</a></div>
+          </div>
+          <div class="p-4 flex justify-end gap-3 bg-gray-50 border-t">
+            @if (activeTab() === AppStatus.NEW) {
+              <button (click)="updateCandidateStatus(candidate.id, AppStatus.REJECTED)" class="flex items-center gap-2 bg-red-100 text-red-700 hover:bg-red-200 font-semibold py-2 px-3 rounded-lg text-sm transition-colors"><i class="fas fa-times-circle"></i> Rejeitar</button>
+              <button (click)="updateCandidateStatus(candidate.id, AppStatus.APPROVED)" class="flex items-center gap-2 bg-green-100 text-green-700 hover:bg-green-200 font-semibold py-2 px-3 rounded-lg text-sm transition-colors"><i class="fas fa-check-circle"></i> Avançar</button>
+            }
+            @if (activeTab() === AppStatus.APPROVED) {
+              <span class="flex items-center gap-2 bg-green-100 text-green-700 font-semibold py-2 px-3 rounded-lg text-sm"><i class="fas fa-check-circle"></i> Aprovado</span>
+            }
+            @if (activeTab() === AppStatus.REJECTED) {
+              <span class="flex items-center gap-2 bg-red-100 text-red-700 font-semibold py-2 px-3 rounded-lg text-sm"><i class="fas fa-times-circle"></i> Rejeitado</span>
+            }
+          </div>
+        </div>
+      } @empty {
+        <div class="col-span-full text-center py-12">
+          <div class="mx-auto h-24 w-24 text-gray-400"><i class="fas fa-user-slash fa-4x"></i></div>
+          <h3 class="mt-2 text-lg font-medium text-gray-900">Nenhum candidato encontrado</h3>
+          <p class="mt-1 text-sm text-gray-500">Não há candidatos {{ activeTab() === 'new' ? 'novos' : activeTab() === 'approved' ? 'aprovados' : 'rejeitados' }} para esta vaga.</p>
+        </div>
+      }
+    </div>
+  }
+</div>

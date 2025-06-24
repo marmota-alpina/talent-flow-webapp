@@ -9,6 +9,7 @@ import { ProficiencyLevelsService } from '../../features/proficiency-levels/prof
 import { ExperienceLevelsService } from '../../features/experience-levels/experience-levels.service';
 import { ProfessionalAreasService } from '../../features/professional-areas/professional-areas.service';
 import { CurationSeedService } from './curation-seed-service';
+import {CurationItem} from '../../models/curation-item.model';
 
 describe('CurationSeedService', () => {
   let service: CurationSeedService;
@@ -93,7 +94,7 @@ describe('CurationSeedService', () => {
     });
 
     it('should handle errors and continue with other items', (done) => {
-      mockTechnologiesService.create.and.callFake((item: any) => {
+      mockTechnologiesService.create.and.callFake((item: CurationItem) => {
         if (item.name === 'Angular') {
           return throwError(() => new Error('Test error'));
         }
