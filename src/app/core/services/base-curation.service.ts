@@ -12,10 +12,11 @@ import {
   orderBy,
   getCountFromServer,
   getDocs,
-  deleteDoc
+  deleteDoc, getDoc
 } from '@angular/fire/firestore';
-import { Observable, from, switchMap } from 'rxjs';
+import {Observable, from, switchMap, map} from 'rxjs';
 import { CurationItem, CurationItemStatus } from '../../models/curation-item.model';
+import {Vacancy} from '../../models/vacancy.model';
 
 /**
  * Base abstract service for all curation services.
@@ -50,6 +51,18 @@ export abstract class BaseCurationService<T extends CurationItem> {
       orderBy('name')
     );
     return collectionData(itemsQuery, { idField: 'id' }) as Observable<T[]>;
+  }
+
+  getById(id: string): Observable<T | null> {
+    const docRef = doc(this.firestore, `${this.collectionName}/${id}`);
+    return from(getDoc(docRef)).pipe(
+      map(docSnap => {
+        if (docSnap.exists()) {
+          return { id: docSnap.id, ...docSnap.data() } as T;
+        }
+        return null;
+      })
+    );
   }
 
   /**
