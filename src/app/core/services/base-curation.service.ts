@@ -14,9 +14,8 @@ import {
   getDocs,
   deleteDoc, getDoc
 } from '@angular/fire/firestore';
-import {Observable, from, switchMap, map} from 'rxjs';
+import { Observable, from, switchMap, map } from 'rxjs';
 import { CurationItem, CurationItemStatus } from '../../models/curation-item.model';
-import {Vacancy} from '../../models/vacancy.model';
 
 /**
  * Base abstract service for all curation services.

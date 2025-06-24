@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { combineLatest, map, switchMap, tap } from 'rxjs';
