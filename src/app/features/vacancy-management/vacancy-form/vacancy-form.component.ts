@@ -1,230 +1,463 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
-import { VacancyService } from '../../../core/services/vacancy.service';
+import { firstValueFrom, map, Observable, of, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+
+// Models
 import { Vacancy, VacancyRequirement } from '../../../models/vacancy.model';
-import { Observable, Subscription, of } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
-import { serverTimestamp } from '@angular/fire/firestore';
+import { SoftSkill } from '../../soft-skills/soft-skill.model';
+
+// Services
+import { VacancyService } from '../../../core/services/vacancy.service';
+
+// Serviços de Curadoria específicos, conforme a arquitetura do projeto
+import { ExperienceLevelsService } from '../../experience-levels/experience-levels.service';
+import { ProfessionalAreasService } from '../../professional-areas/professional-areas.service';
+import { TechnologiesService } from '../../technologies/technologies.service';
+import { LanguagesService } from '../../languages/languages.service';
+import { SoftSkillsService } from '../../soft-skills/soft-skills.service';
 
 @Component({
   selector: 'app-vacancy-form',
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './vacancy-form.component.html',
-  styleUrls: ['./vacancy-form.component.scss']
+  styleUrls: ['./vacancy-form.component.scss'],
 })
-export class VacancyFormComponent implements OnInit, OnDestroy {
-  vacancyForm!: FormGroup;
-  isEditMode = false;
-  vacancyId: string | null = null;
-  loading = false;
-  subscription = new Subscription();
-
-  // Mock data for dropdowns - in a real app, these would come from services
-  areas = ['Desenvolvimento de Software', 'Design de Produto (UX/UI)', 'DevOps / SRE', 'Dados', 'Gestão de Projetos'];
-  levels = ['Júnior', 'Pleno', 'Sênior'];
-  technologies = ['Angular', 'React', 'Vue.js', 'Node.js', 'Java', 'Python', 'C#', '.NET', 'PHP', 'Ruby', 'Go', 'Rust', 'TypeScript', 'JavaScript', 'HTML', 'CSS', 'SASS', 'AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'Firebase'];
-  techLevels = ['Básico', 'Intermediário', 'Avançado'];
-  languages = ['Inglês', 'Espanhol', 'Português', 'Francês', 'Alemão', 'Italiano', 'Mandarim', 'Japonês', 'Coreano'];
-  langLevels = ['Básico', 'Intermediário', 'Avançado', 'Fluente', 'Nativo'];
-
+export class VacancyFormComponent implements OnInit {
+  // --- Injeção de Dependências ---
   private fb = inject(FormBuilder);
-  private vacancyService = inject(VacancyService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private vacancyService = inject(VacancyService);
 
-  ngOnInit(): void {
+  // Injeção dos serviços de curadoria específicos
+  private experienceLevelsService = inject(ExperienceLevelsService);
+  private professionalAreasService = inject(ProfessionalAreasService);
+  private technologiesService = inject(TechnologiesService);
+  private languagesService = inject(LanguagesService);
+  private softSkillsService = inject(SoftSkillsService);
+
+  // --- Estado do Componente ---
+  vacancyForm!: FormGroup;
+  isEditMode = false;
+  loading = false;
+  private vacancyId: string | null = null;
+
+  skillInput = new FormControl('');
+  filteredSkills: SoftSkill[] = [];
+  showSkillSuggestions = false;
+  selectedSkillIndex = -1;
+
+  // --- Dados para Dropdowns ---
+  levels: string[] = [];
+  areas: string[] = [];
+  technologies: string[] = [];
+  techLevels: string[] = ['Básico', 'Intermediário', 'Avançado'];
+  languages: string[] = [];
+  langLevels: string[] = ['Básico', 'Intermediário', 'Avançado', 'Fluente', 'Nativo'];
+
+  constructor() {
     this.initForm();
+  }
 
-    this.subscription.add(
-      this.route.paramMap.pipe(
-        switchMap(params => {
-          const id = params.get('id');
-          this.vacancyId = id;
-          this.isEditMode = !!id;
+  async ngOnInit(): Promise<void> {
+    await this.loadCurationData();
 
-          if (this.isEditMode && id) {
-            return this.vacancyService.getById(id);
-          }
-          return of(null);
-        }),
-        tap(vacancy => {
-          if (vacancy) {
-            this.populateForm(vacancy);
-          }
-        })
-      ).subscribe()
+    // Set up skill input autocomplete
+    this.skillInput.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(value => this.filterSkills(value || ''))
+    ).subscribe(skills => {
+      this.filteredSkills = skills;
+      this.showSkillSuggestions = skills.length > 0;
+    });
+
+    this.vacancyId = this.route.snapshot.paramMap.get('id');
+    if (this.vacancyId) {
+      this.isEditMode = true;
+      this.loading = true;
+
+      try {
+        const vacancy = await firstValueFrom(this.vacancyService.getById(this.vacancyId));
+        if (vacancy) {
+          this.patchForm(vacancy);
+        } else {
+          console.error('Vaga não encontrada.');
+          this.router.navigate(['/vacancy-management']);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar vaga:", error);
+        console.error('Não foi possível carregar os dados da vaga.');
+      } finally {
+        this.loading = false;
+      }
+    }
+  }
+
+  /**
+   * Filter skills based on input value
+   * @param value The input value to filter by
+   * @returns Observable of filtered skills
+   */
+  filterSkills(value: string): Observable<SoftSkill[]> {
+    const filterValue = value.toLowerCase();
+
+    if (!filterValue) {
+      return of([]);
+    }
+
+    return this.softSkillsService.getAll().pipe(
+      map(skills => skills.filter(skill =>
+        skill.name.toLowerCase().includes(filterValue)
+      ))
     );
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+  /**
+   * Handle focus on skill input
+   */
+  onSkillInputFocus(): void {
+    const value = this.skillInput.value || '';
+    if (value) {
+      this.filterSkills(value).subscribe(skills => {
+        this.filteredSkills = skills;
+        this.showSkillSuggestions = skills.length > 0;
+        this.selectedSkillIndex = -1; // Reset selection on focus
+      });
+    }
   }
 
-  initForm(): void {
+  /**
+   * Select a skill from the suggestions
+   * @param skill The skill to select
+   */
+  selectSkill(skill: SoftSkill): void {
+    this.addSkill(skill.name);
+    this.skillInput.setValue('');
+    this.showSkillSuggestions = false;
+    this.selectedSkillIndex = -1;
+  }
+
+  /**
+   * Handle keyboard navigation in the suggestions dropdown
+   * @param event The keyboard event
+   */
+  onSkillKeydown(event: KeyboardEvent): void {
+    // Only handle keyboard navigation when suggestions are visible
+    if (!this.showSkillSuggestions || this.filteredSkills.length === 0) {
+      return;
+    }
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        this.selectedSkillIndex = Math.min(this.selectedSkillIndex + 1, this.filteredSkills.length - 1);
+        this.ensureSelectedItemVisible();
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.selectedSkillIndex = Math.max(this.selectedSkillIndex - 1, -1);
+        this.ensureSelectedItemVisible();
+        break;
+      case 'PageDown':
+        event.preventDefault();
+        // Move down by 5 items or to the end of the list
+        this.selectedSkillIndex = Math.min(this.selectedSkillIndex + 5, this.filteredSkills.length - 1);
+        this.ensureSelectedItemVisible();
+        break;
+      case 'PageUp':
+        event.preventDefault();
+        // Move up by 5 items or to the beginning of the list
+        this.selectedSkillIndex = Math.max(this.selectedSkillIndex - 5, 0);
+        this.ensureSelectedItemVisible();
+        break;
+      case 'Home':
+        event.preventDefault();
+        // Move to the first item
+        this.selectedSkillIndex = 0;
+        this.ensureSelectedItemVisible();
+        break;
+      case 'End':
+        event.preventDefault();
+        // Move to the last item
+        this.selectedSkillIndex = this.filteredSkills.length - 1;
+        this.ensureSelectedItemVisible();
+        break;
+      case 'Enter':
+        event.preventDefault();
+        if (this.selectedSkillIndex >= 0) {
+          this.selectSkill(this.filteredSkills[this.selectedSkillIndex]);
+        } else {
+          // If no suggestion is selected, try to find an exact match
+          this.tryAddExactMatchOrInput();
+        }
+        break;
+      case 'Escape':
+        event.preventDefault();
+        this.showSkillSuggestions = false;
+        this.selectedSkillIndex = -1;
+        break;
+    }
+  }
+
+  /**
+   * Try to add a skill that exactly matches the input
+   * Only allows adding skills that exist in the database
+   */
+  tryAddExactMatchOrInput(): void {
+    const value = this.skillInput.value?.trim() || '';
+    if (!value) return;
+
+    // Check if there's an exact match in the filtered skills
+    const exactMatch = this.filteredSkills.find(
+      skill => skill.name.toLowerCase() === value.toLowerCase()
+    );
+
+    if (exactMatch) {
+      this.selectSkill(exactMatch);
+    } else {
+      // If no exact match, check against all skills in the database
+      this.softSkillsService.getAll().pipe(
+        map(skills => skills.find(skill => skill.name.toLowerCase() === value.toLowerCase()))
+      ).subscribe(skill => {
+        if (skill) {
+          this.selectSkill(skill);
+        } else {
+          // If the skill doesn't exist in the database, show feedback
+          console.warn('Skill not found in database:', value);
+          // Clear the input but don't add the skill
+          this.skillInput.setValue('');
+          // Highlight the input field to indicate an error
+          this.showInvalidSkillFeedback();
+        }
+      });
+    }
+  }
+
+  /**
+   * Show visual feedback when an invalid skill is entered
+   */
+  private showInvalidSkillFeedback(): void {
+    const inputElement = document.querySelector('.tag-input') as HTMLElement;
+    if (inputElement) {
+      // Add a CSS class for visual feedback
+      inputElement.classList.add('invalid-input');
+
+      // Show a tooltip with an error message
+      const container = document.querySelector('.tag-input-container') as HTMLElement;
+      if (container) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'skill-error-tooltip';
+        tooltip.textContent = 'Habilidade não encontrada. Por favor, selecione uma da lista.';
+        container.appendChild(tooltip);
+
+        // Remove the tooltip after a delay
+        setTimeout(() => {
+          container.removeChild(tooltip);
+        }, 3000);
+      }
+
+      // Remove the class after a short delay
+      setTimeout(() => {
+        inputElement.classList.remove('invalid-input');
+      }, 1500);
+    }
+  }
+
+  /**
+   * Hide skill suggestions
+   */
+  hideSkillSuggestions(): void {
+    // Use setTimeout to allow click events to complete first
+    setTimeout(() => {
+      this.showSkillSuggestions = false;
+      this.selectedSkillIndex = -1;
+    }, 150); // Increased timeout to ensure click events are processed
+  }
+
+  /**
+   * Ensure the selected item is visible in the suggestions dropdown
+   * This scrolls the container if necessary
+   */
+  private ensureSelectedItemVisible(): void {
+    setTimeout(() => {
+      if (this.selectedSkillIndex < 0) return;
+
+      const container = document.querySelector('.skill-suggestions');
+      const selectedItem = document.querySelector('.skill-suggestion-item.selected');
+
+      if (container && selectedItem) {
+        const containerRect = container.getBoundingClientRect();
+        const selectedRect = selectedItem.getBoundingClientRect();
+
+        // Check if the selected item is outside the visible area
+        if (selectedRect.bottom > containerRect.bottom) {
+          // Item is below the visible area, scroll down
+          container.scrollTop += (selectedRect.bottom - containerRect.bottom);
+        } else if (selectedRect.top < containerRect.top) {
+          // Item is above the visible area, scroll up
+          container.scrollTop -= (containerRect.top - selectedRect.top);
+        }
+      }
+    }, 0);
+  }
+
+  // --- Getters para Acesso Fácil aos FormArrays no Template ---
+  get requirementsGroup(): FormGroup {
+    return this.vacancyForm.get('requirements') as FormGroup;
+  }
+  get technologiesArray(): FormArray {
+    return this.requirementsGroup.get('technologies') as FormArray;
+  }
+  get languagesArray(): FormArray {
+    return this.requirementsGroup.get('languages') as FormArray;
+  }
+  get skillsArray(): FormArray {
+    return this.requirementsGroup.get('skills') as FormArray;
+  }
+
+  // --- Inicialização e Manipulação do Formulário ---
+  private initForm(): void {
     this.vacancyForm = this.fb.group({
-      title: ['', [Validators.required]],
-      description: ['', [Validators.required]],
+      title: ['', Validators.required],
       imageUrl: [''],
-      area: ['', [Validators.required]],
-      level: ['', [Validators.required]],
+      description: ['', Validators.required],
+      level: ['', Validators.required],
+      area: ['', Validators.required],
       requirements: this.fb.group({
         technologies: this.fb.array([]),
         languages: this.fb.array([]),
-        skills: this.fb.array([])
-      })
+        skills: this.fb.array([]),
+      }),
     });
-
-    // Add initial empty rows
-    this.addTechnology();
-    this.addLanguage();
-    this.addSkill('');
   }
 
-  populateForm(vacancy: Vacancy): void {
+  private patchForm(vacancy: Vacancy): void {
     this.vacancyForm.patchValue({
       title: vacancy.title,
-      description: vacancy.description,
       imageUrl: vacancy.imageUrl,
+      description: vacancy.description,
+      level: vacancy.level,
       area: vacancy.area,
-      level: vacancy.level
     });
 
-    // Clear default arrays
     this.technologiesArray.clear();
+    vacancy.requirements.technologies.forEach(tech => this.addTechnology(tech));
+
     this.languagesArray.clear();
+    vacancy.requirements.languages.forEach(lang => this.addLanguage(lang));
+
     this.skillsArray.clear();
+    vacancy.requirements.skills.forEach(skill => this.addSkill(skill, false));
+  }
 
-    // Add technologies
-    if (vacancy.requirements?.technologies?.length) {
-      vacancy.requirements.technologies.forEach(tech => {
-        this.addTechnology(tech.item, tech.level);
-      });
-    } else {
-      this.addTechnology();
-    }
+  /**
+   * Carrega os dados das coleções de curadoria para preencher os dropdowns do formulário.
+   * Utiliza os serviços específicos que herdam de BaseCurationService.
+   */
+  private async loadCurationData(): Promise<void> {
+    try {
+      const results = await Promise.all([
+        firstValueFrom(this.experienceLevelsService.getAll().pipe(map(items => items.map(i => i.name)))),
+        firstValueFrom(this.professionalAreasService.getAll().pipe(map(items => items.map(i => i.name)))),
+        firstValueFrom(this.technologiesService.getAll().pipe(map(items => items.map(i => i.name)))),
+        firstValueFrom(this.languagesService.getAll().pipe(map(items => items.map(i => i.name)))),
+      ]);
 
-    // Add languages
-    if (vacancy.requirements?.languages?.length) {
-      vacancy.requirements.languages.forEach(lang => {
-        this.addLanguage(lang.item, lang.level);
-      });
-    } else {
-      this.addLanguage();
-    }
+      this.levels = results[0];
+      this.areas = results[1];
+      this.technologies = results[2];
+      this.languages = results[3];
 
-    // Add skills
-    if (vacancy.requirements?.skills?.length) {
-      vacancy.requirements.skills.forEach(skill => {
-        this.addSkill(skill);
-      });
-    } else {
-      this.addSkill('');
+    } catch (error) {
+      console.error("Erro ao carregar dados da curadoria:", error);
+      console.error("Não foi possível carregar as opções do formulário.");
     }
   }
 
-  get technologiesArray(): FormArray {
-    return this.vacancyForm.get('requirements')?.get('technologies') as FormArray;
-  }
+  // --- Métodos para Manipular FormArrays ---
 
-  get languagesArray(): FormArray {
-    return this.vacancyForm.get('requirements')?.get('languages') as FormArray;
+  // Tecnologias
+  createTechnologyGroup(tech?: VacancyRequirement): FormGroup {
+    return this.fb.group({
+      item: [tech?.item || '', Validators.required],
+      level: [tech?.level || '', Validators.required],
+    });
   }
-
-  get skillsArray(): FormArray {
-    return this.vacancyForm.get('requirements')?.get('skills') as FormArray;
+  addTechnology(tech?: VacancyRequirement): void {
+    this.technologiesArray.push(this.createTechnologyGroup(tech));
   }
-
-  addTechnology(item = '', level = ''): void {
-    this.technologiesArray.push(
-      this.fb.group({
-        item: [item],
-        level: [level]
-      })
-    );
-  }
-
   removeTechnology(index: number): void {
     this.technologiesArray.removeAt(index);
   }
 
-  addLanguage(item = '', level = ''): void {
-    this.languagesArray.push(
-      this.fb.group({
-        item: [item],
-        level: [level]
-      })
-    );
+  // Idiomas
+  createLanguageGroup(lang?: VacancyRequirement): FormGroup {
+    return this.fb.group({
+      item: [lang?.item || '', Validators.required],
+      level: [lang?.level || '', Validators.required],
+    });
   }
-
+  addLanguage(lang?: VacancyRequirement): void {
+    this.languagesArray.push(this.createLanguageGroup(lang));
+  }
   removeLanguage(index: number): void {
     this.languagesArray.removeAt(index);
   }
 
-  addSkill(skill: string): void {
-    this.skillsArray.push(this.fb.control(skill));
+  // Habilidades (Skills)
+  addSkill(skillValue: string, clearInput = true): void {
+    const value = skillValue.trim();
+    if (value && !this.skillsArray.value.includes(value)) {
+      this.skillsArray.push(this.fb.control(value, Validators.required));
+    }
+    if (clearInput) {
+      this.skillInput.reset();
+    }
+  }
+
+  onSkillEnter(event: Event): void {
+    event.preventDefault();
+    this.tryAddExactMatchOrInput();
   }
 
   removeSkill(index: number): void {
     this.skillsArray.removeAt(index);
   }
 
-  onSubmit(): void {
+  // --- Ação de Submissão ---
+  async onSubmit(): Promise<void> {
     if (this.vacancyForm.invalid) {
+      console.warn('Por favor, preencha todos os campos obrigatórios.');
+      this.vacancyForm.markAllAsTouched();
       return;
     }
 
     this.loading = true;
-    const formValue = this.vacancyForm.value;
+    const formValue = this.vacancyForm.value as Vacancy;
 
-    // Filter out empty requirements
-    const technologies = formValue.requirements.technologies
-      .filter((tech: VacancyRequirement) => tech.item && tech.level);
-
-    const languages = formValue.requirements.languages
-      .filter((lang: VacancyRequirement) => lang.item && lang.level);
-
-    const skills = formValue.requirements.skills
-      .filter((skill: string) => skill.trim() !== '');
-
-    const vacancy = {
-      ...formValue,
-      // Set name to the same value as title to satisfy CurationItem interface
-      name: formValue.title,
-      requirements: {
-        technologies,
-        languages,
-        skills
+    try {
+      if (this.isEditMode && this.vacancyId) {
+        await this.vacancyService.update(this.vacancyId, formValue);
+        console.log('Vaga atualizada com sucesso!');
+      } else {
+        await this.vacancyService.create(formValue);
+        console.log('Vaga criada com sucesso!');
       }
-    };
-
-    let action$: Observable<void>;
-
-    if (this.isEditMode && this.vacancyId) {
-      action$ = this.vacancyService.update(this.vacancyId, {
-        ...vacancy,
-        updatedAt: serverTimestamp()
-      });
-    } else {
-      action$ = this.vacancyService.create({
-        ...vacancy,
-        status: 'active',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+      this.router.navigate(['/vacancy-management']);
+    } catch (error) {
+      console.error('Erro ao salvar vaga:', error);
+      console.error('Ocorreu um erro ao salvar a vaga. Tente novamente.');
+    } finally {
+      this.loading = false;
     }
-
-    this.subscription.add(
-      action$.subscribe({
-        next: () => {
-          this.router.navigate(['/vacancy-management']);
-        },
-        error: (error) => {
-          console.error('Error saving vacancy:', error);
-          this.loading = false;
-        }
-      })
-    );
   }
 }

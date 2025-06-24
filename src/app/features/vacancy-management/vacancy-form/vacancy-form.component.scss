@@ -1,1 +1,152 @@
-/* Styles for vacancy form component */
+.tag-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #D1D5DB; // Cor de borda padrão do Tailwind (gray-300)
+  border-radius: 0.5rem; // .rounded-lg
+  background-color: white;
+  transition: box-shadow 0.2s;
+  position: relative; // Para posicionar o dropdown de sugestões
+
+  &:focus-within {
+    border-color: #2563EB; // Cor primary
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
+  }
+}
+
+// Estilo para cada tag individual.
+.tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #DBEAFE; // Cor blue-100
+  color: #1E40AF; // Cor blue-800
+  padding: 4px 10px;
+  border-radius: 9999px; // .rounded-full
+  font-size: 0.875rem; // .text-sm
+  font-weight: 500; // .font-medium
+  line-height: 1;
+}
+
+// Estilo para o botão de remover a tag.
+.tag-remove {
+  margin-left: 8px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3B82F6; // Cor blue-500
+
+  &:hover {
+    color: #1E40AF; // Cor blue-800
+  }
+
+  .fas {
+    font-size: 0.75rem;
+  }
+}
+
+// Estilo para o campo de input dentro do container.
+.tag-input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  padding: 4px;
+  background-color: transparent;
+  min-width: 120px;
+  transition: all 0.3s ease;
+
+  &.invalid-input {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    color: #EF4444; // Cor red-500
+    background-color: rgba(239, 68, 68, 0.1); // Cor red-500 com transparência
+    border-radius: 0.25rem;
+  }
+}
+
+// Animação de shake para feedback visual
+@keyframes shake {
+  10%, 90% {
+    transform: translateX(-1px);
+  }
+
+  20%, 80% {
+    transform: translateX(2px);
+  }
+
+  30%, 50%, 70% {
+    transform: translateX(-3px);
+  }
+
+  40%, 60% {
+    transform: translateX(3px);
+  }
+}
+
+// Estilo para o tooltip de erro
+.skill-error-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: #FEE2E2; // Cor red-100
+  color: #B91C1C; // Cor red-700
+  padding: 8px 12px;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  border-left: 4px solid #EF4444; // Cor red-500
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  z-index: 20;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Estilo para o dropdown de sugestões
+.skill-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #D1D5DB;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+// Estilo para cada item de sugestão
+.skill-suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #EFF6FF; // Cor blue-50
+  }
+
+  &.selected {
+    background-color: #BFDBFE; // Cor blue-200
+    font-weight: 500;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #E5E7EB; // Cor gray-200
+  }
+}

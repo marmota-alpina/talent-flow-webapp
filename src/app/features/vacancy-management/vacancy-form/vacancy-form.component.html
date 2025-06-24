@@ -1,4 +1,5 @@
 <div class="max-w-4xl mx-auto px-6 py-8">
+  <!-- O formulário agora está conectado ao FormGroup no componente -->
   <form [formGroup]="vacancyForm" (ngSubmit)="onSubmit()" class="bg-white rounded-lg shadow-sm">
     <div class="p-6 border-b">
       <h1 class="text-2xl font-bold text-gray-900">{{ isEditMode ? 'Editar' : 'Criar' }} Vaga</h1>
@@ -6,22 +7,21 @@
     </div>
 
     <div class="p-6 space-y-8">
+      <!-- Seção principal de detalhes da vaga -->
       <div class="space-y-4">
         <!-- Título da Vaga -->
         <div>
           <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Título da Vaga <span class="text-red-500">*</span></label>
           <input type="text" id="title" formControlName="title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
           @if (vacancyForm.get('title')?.invalid && vacancyForm.get('title')?.touched) {
-            <div class="text-red-500 text-sm mt-1">
-              Título da vaga é obrigatório
-            </div>
+            <div class="text-red-500 text-sm mt-1">Título da vaga é obrigatório.</div>
           }
         </div>
 
         <!-- URL da Imagem -->
         <div>
           <label for="imageUrl" class="block text-sm font-medium text-gray-700 mb-1">URL da Imagem da Vaga</label>
-          <input type="text" id="imageUrl" formControlName="imageUrl" placeholder="https://exemplo.com/imagem.png" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+          <input type="text" id="imageUrl" formControlName="imageUrl" placeholder="[https://exemplo.com/imagem.png](https://exemplo.com/imagem.png)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
         </div>
 
         <!-- Descrição da Vaga -->
@@ -29,9 +29,7 @@
           <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descrição da Vaga <span class="text-red-500">*</span></label>
           <textarea id="description" formControlName="description" rows="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
           @if (vacancyForm.get('description')?.invalid && vacancyForm.get('description')?.touched) {
-            <div class="text-red-500 text-sm mt-1">
-              Descrição da vaga é obrigatória
-            </div>
+            <div class="text-red-500 text-sm mt-1">Descrição da vaga é obrigatória.</div>
           }
         </div>
 
@@ -40,117 +38,118 @@
           <div>
             <label for="level" class="block text-sm font-medium text-gray-700 mb-1">Nível <span class="text-red-500">*</span></label>
             <select id="level" formControlName="level" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-              <option value="">Selecione um nível</option>
+              <option value="" disabled>Selecione um nível</option>
               @for (level of levels; track level) {
                 <option [value]="level">{{ level }}</option>
               }
             </select>
             @if (vacancyForm.get('level')?.invalid && vacancyForm.get('level')?.touched) {
-              <div class="text-red-500 text-sm mt-1">
-                Nível é obrigatório
-              </div>
+              <div class="text-red-500 text-sm mt-1">Nível é obrigatório.</div>
             }
           </div>
           <div>
             <label for="area" class="block text-sm font-medium text-gray-700 mb-1">Área <span class="text-red-500">*</span></label>
             <select id="area" formControlName="area" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-              <option value="">Selecione uma área</option>
+              <option value="" disabled>Selecione uma área</option>
               @for (area of areas; track area) {
                 <option [value]="area">{{ area }}</option>
               }
             </select>
             @if (vacancyForm.get('area')?.invalid && vacancyForm.get('area')?.touched) {
-              <div class="text-red-500 text-sm mt-1">
-                Área é obrigatória
-              </div>
+              <div class="text-red-500 text-sm mt-1">Área é obrigatória.</div>
             }
           </div>
         </div>
       </div>
 
-      <!-- Requisitos da Vaga -->
+      <!-- Requisitos da Vaga (FormGroup aninhado) -->
       <div class="space-y-6 pt-6 border-t" formGroupName="requirements">
         <h2 class="text-xl font-bold text-gray-800">Requisitos da Vaga</h2>
 
-        <!-- Tecnologias -->
+        <!-- Tecnologias (FormArray) -->
         <div>
           <h3 class="text-lg font-semibold text-gray-700 mb-2">Tecnologias</h3>
           <div class="space-y-3" formArrayName="technologies">
-            @for (tech of technologiesArray.controls; track tech; let i = $index) {
+            @for (techControl of technologiesArray.controls; track techControl; let i = $index) {
               <div [formGroupName]="i" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                 <select formControlName="item" class="md:col-span-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                  <option value="">Selecione uma tecnologia</option>
-                  @for (techOption of technologies; track techOption) {
-                    <option [value]="techOption">{{ techOption }}</option>
-                  }
+                  <option value="" disabled>Selecione uma tecnologia</option>
+                  @for (techOption of technologies; track techOption) { <option [value]="techOption">{{ techOption }}</option> }
                 </select>
                 <div class="flex items-center gap-2">
                   <select formControlName="level" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option value="">Selecione o nível</option>
-                    @for (level of techLevels; track level) {
-                      <option [value]="level">{{ level }}</option>
-                    }
+                    <option value="" disabled>Nível</option>
+                    @for (level of techLevels; track level) { <option [value]="level">{{ level }}</option> }
                   </select>
-                  <button type="button" (click)="removeTechnology(i)" class="text-red-500 hover:text-red-700">
-                    <i class="fas fa-trash"></i>
-                  </button>
+                  <button type="button" (click)="removeTechnology(i)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
                 </div>
               </div>
             }
           </div>
-          <button type="button" (click)="addTechnology()" class="mt-2 text-sm font-semibold text-primary hover:text-blue-700 flex items-center gap-2">
-            <i class="fas fa-plus-circle"></i> Adicionar Tecnologia
-          </button>
+          <button type="button" (click)="addTechnology()" class="mt-2 text-sm font-semibold text-primary hover:text-blue-700 flex items-center gap-2"><i class="fas fa-plus-circle"></i> Adicionar Tecnologia</button>
         </div>
 
-        <!-- Idiomas -->
+        <!-- Idiomas (FormArray) -->
         <div>
           <h3 class="text-lg font-semibold text-gray-700 mb-2">Idiomas</h3>
           <div class="space-y-3" formArrayName="languages">
-            @for (lang of languagesArray.controls; track lang; let i = $index) {
+            @for (langControl of languagesArray.controls; track langControl; let i = $index) {
               <div [formGroupName]="i" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                 <select formControlName="item" class="md:col-span-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                  <option value="">Selecione um idioma</option>
-                  @for (langOption of languages; track langOption) {
-                    <option [value]="langOption">{{ langOption }}</option>
-                  }
+                  <option value="" disabled>Selecione um idioma</option>
+                  @for (langOption of languages; track langOption) { <option [value]="langOption">{{ langOption }}</option> }
                 </select>
                 <div class="flex items-center gap-2">
                   <select formControlName="level" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                    <option value="">Selecione o nível</option>
-                    @for (level of langLevels; track level) {
-                      <option [value]="level">{{ level }}</option>
-                    }
+                    <option value="" disabled>Nível</option>
+                    @for (level of langLevels; track level) { <option [value]="level">{{ level }}</option> }
                   </select>
-                  <button type="button" (click)="removeLanguage(i)" class="text-red-500 hover:text-red-700">
-                    <i class="fas fa-trash"></i>
-                  </button>
+                  <button type="button" (click)="removeLanguage(i)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
                 </div>
               </div>
             }
           </div>
-          <button type="button" (click)="addLanguage()" class="mt-2 text-sm font-semibold text-primary hover:text-blue-700 flex items-center gap-2">
-            <i class="fas fa-plus-circle"></i> Adicionar Idioma
-          </button>
+          <button type="button" (click)="addLanguage()" class="mt-2 text-sm font-semibold text-primary hover:text-blue-700 flex items-center gap-2"><i class="fas fa-plus-circle"></i> Adicionar Idioma</button>
         </div>
 
-        <!-- Habilidades (Skills) -->
+        <!-- Habilidades (Skills) - Implementação com Tags -->
         <div>
-          <label for="skills-section" class="block text-lg font-semibold text-gray-700 mb-2">Habilidades (Skills)</label>
-          <p class="text-sm text-gray-500 mb-2">Adicione habilidades comportamentais ou diferenciais.</p>
-          <div id="skills-section" class="space-y-3" formArrayName="skills">
-            @for (skill of skillsArray.controls; track skill; let i = $index) {
-              <div class="flex items-center gap-2">
-                <input [formControlName]="i" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Ex: Comunicação Efetiva">
-                <button type="button" (click)="removeSkill(i)" class="text-red-500 hover:text-red-700">
-                  <i class="fas fa-trash"></i>
+          <label class="block text-lg font-semibold text-gray-700 mb-2">Habilidades (Skills)</label>
+          <p class="text-sm text-gray-500 mb-2">Selecione habilidades da lista de sugestões ou digite o nome exato de uma habilidade cadastrada.</p>
+
+          <div class="tag-input-container">
+            @for (skillControl of skillsArray.controls; track skillControl; let i = $index) {
+              <div class="tag">
+                <span>{{ skillControl.value }}</span>
+                <button type="button" (click)="removeSkill(i)" class="tag-remove">
+                  <i class="fas fa-times"></i>
                 </button>
               </div>
             }
+
+            <input
+              type="text"
+              [formControl]="skillInput"
+              (keydown)="onSkillKeydown($event)"
+              (focus)="onSkillInputFocus()"
+              (blur)="hideSkillSuggestions()"
+              class="tag-input"
+              placeholder="Adicionar habilidade...">
+
+            @if (showSkillSuggestions) {
+              <div class="skill-suggestions">
+                @for (skill of filteredSkills; track skill.id; let i = $index) {
+                  <div
+                    class="skill-suggestion-item"
+                    [class.selected]="i === selectedSkillIndex"
+                    (click)="selectSkill(skill)"
+                    (mouseenter)="selectedSkillIndex = i">
+                    {{ skill.name }}
+                  </div>
+                }
+              </div>
+            }
           </div>
-          <button type="button" (click)="addSkill('')" class="mt-2 text-sm font-semibold text-primary hover:text-blue-700 flex items-center gap-2">
-            <i class="fas fa-plus-circle"></i> Adicionar Habilidade
-          </button>
         </div>
       </div>
     </div>
@@ -159,11 +158,13 @@
       <a routerLink="/vacancy-management" class="bg-gray-200 text-gray-800 font-semibold px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors">Cancelar</a>
       <button type="submit" [disabled]="vacancyForm.invalid || loading" class="bg-primary text-white font-semibold px-6 py-2 rounded-lg hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
         @if (loading) {
-          <span>
+          <span class="flex items-center">
             <i class="fas fa-spinner fa-spin mr-2"></i>
+            Salvando...
           </span>
+        } @else {
+          <span>{{ isEditMode ? 'Atualizar' : 'Salvar' }} Vaga</span>
         }
-        {{ isEditMode ? 'Atualizar' : 'Salvar' }} Vaga
       </button>
     </div>
   </form>
