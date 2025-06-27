@@ -439,7 +439,7 @@ export class ResumeEditComponent implements OnInit, OnDestroy {
   }
 
   // Helper method to format Date objects to YYYY-MM-DD string format for HTML date inputs
-  private formatDateForInput(date: any): string {
+  private formatDateForInput(date: Date | { toDate: () => Date } | { seconds: number, nanoseconds: number } | string | null | undefined): string {
     if (!date) return '';
 
     try {
@@ -447,10 +447,10 @@ export class ResumeEditComponent implements OnInit, OnDestroy {
       let jsDate;
       if (date instanceof Date) {
         jsDate = date;
-      } else if (typeof date === 'object' && date.toDate && typeof date.toDate === 'function') {
+      } else if (typeof date === 'object' && 'toDate' in date && typeof date.toDate === 'function') {
         // Handle Firestore Timestamp
         jsDate = date.toDate();
-      } else if (typeof date === 'object' && date.seconds !== undefined && date.nanoseconds !== undefined) {
+      } else if (typeof date === 'object' && 'seconds' in date && 'nanoseconds' in date) {
         // Handle Firestore Timestamp in a different format
         jsDate = new Date(date.seconds * 1000 + date.nanoseconds / 1000000);
       } else if (typeof date === 'string') {
@@ -458,7 +458,7 @@ export class ResumeEditComponent implements OnInit, OnDestroy {
         jsDate = new Date(date);
       } else {
         // Handle other formats
-        jsDate = new Date(date);
+        jsDate = new Date(date as unknown as string | number | Date);
       }
 
       // Check if the date is valid

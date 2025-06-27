@@ -141,7 +141,7 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
                           type="text"
                           placeholder="Adicionar tecnologia..."
                           class="flex-grow bg-transparent border-none outline-none text-sm technology-input"
-                          (focus)="onTechnologyInputFocus(i)"
+                          (focus)="onTechnologyInputFocus()"
                           (blur)="hideTechnologySuggestions()"
                           (keydown)="onTechnologyKeydown($event, i)"
                         >
@@ -190,7 +190,7 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
                           type="text"
                           placeholder="Adicionar soft skill..."
                           class="flex-grow bg-transparent border-none outline-none text-sm softskill-input"
-                          (focus)="onSoftSkillInputFocus(i)"
+                          (focus)="onSoftSkillInputFocus()"
                           (blur)="hideSoftSkillSuggestions()"
                           (keydown)="onSoftSkillKeydown($event, i)"
                         >
@@ -357,7 +357,7 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
   }
 
   // Handle focus on technology input
-  onTechnologyInputFocus(activityIndex: number): void {
+  onTechnologyInputFocus(): void {
     const value = this.technologyInput.value || '';
 
     // Show suggestions if:
@@ -381,7 +381,7 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
   }
 
   // Handle focus on soft skill input
-  onSoftSkillInputFocus(activityIndex: number): void {
+  onSoftSkillInputFocus(): void {
     const value = this.softSkillInput.value || '';
 
     // Show suggestions if:
@@ -498,7 +498,7 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
     if (!this.showTechnologySuggestions && this.technologyInput.value) {
       if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp'].includes(event.key)) {
         // Force show suggestions when using keyboard navigation
-        this.onTechnologyInputFocus(activityIndex);
+        this.onTechnologyInputFocus();
 
         // If we still don't have suggestions visible after focus, try to show them directly
         if (!this.showTechnologySuggestions && this.technologyInput.value) {
@@ -594,7 +594,7 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
     if (!this.showSoftSkillSuggestions && this.softSkillInput.value) {
       if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp'].includes(event.key)) {
         // Force show suggestions when using keyboard navigation
-        this.onSoftSkillInputFocus(activityIndex);
+        this.onSoftSkillInputFocus();
 
         // If we still don't have suggestions visible after focus, try to show them directly
         if (!this.showSoftSkillSuggestions && this.softSkillInput.value) {
