@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Currículo | Ana Beatriz Silva</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome via CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Configuração de Fontes e Cores do Tema -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#2563EB",
+            "secondary": "#F3F4F6",
+            "accent": "#14B8A6",
+            "error": "#EF4444",
+            "success": "#10B981",
+          },
+          fontFamily: {
+            inter: ["Inter", "sans-serif"],
+            sans: ["Inter", "sans-serif"],
+          },
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 11px; /* Centralizado no ícone */
+      top: 1rem;
+      bottom: 0;
+      width: 2px;
+      background-color: #e5e7eb;
+    }
+    .timeline-item .timeline-icon {
+      position: absolute;
+      left: 0;
+      top: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 9999px;
+      background-color: #2563EB;
+      color: white;
+      border: 4px solid #F3F4F6; /* Cor de fundo da página */
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-secondary">
+
+<!-- Header -->
+<header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
+    <div class="flex items-center gap-8">
+      <div class="text-2xl font-bold text-primary">Talent Flow</div>
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="#" class="text-gray-500 font-medium hover:text-primary transition-colors">Vagas</a>
+        <a href="#" class="text-primary font-bold border-b-2 border-primary pb-1">Meu Currículo</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="hidden sm:inline font-semibold text-gray-700 text-sm">Ana Beatriz Silva</span>
+      <img class="w-10 h-10 rounded-full border-2 border-primary" src="https://i.pravatar.cc/150?u=anabeatriz" alt="Foto do Perfil">
+    </div>
+  </div>
+</header>
+
+<main class="px-4 py-10 md:px-6 md:py-12">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+    <!-- Coluna Lateral (Esquerda) -->
+    <aside class="lg:col-span-1 space-y-8">
+      <div class="sticky top-28 space-y-8">
+        <!-- Card de Perfil -->
+        <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+          <img class="w-24 h-24 rounded-full border-4 border-primary mx-auto mb-4" src="https://i.pravatar.cc/150?u=anabeatriz" alt="Foto de Ana Beatriz Silva">
+          <h1 class="text-xl font-bold text-gray-900">Ana Beatriz Silva</h1>
+          <p class="text-sm font-medium text-primary">Desenvolvimento de Software</p>
+          <div class="mt-4 flex justify-center gap-4 text-gray-500">
+            <a href="mailto:ana.silva@exemplo.com" title="Enviar Email" class="hover:text-primary"><i class="fas fa-envelope fa-lg"></i></a>
+            <a href="#" title="Ver Perfil no LinkedIn" class="hover:text-primary"><i class="fab fa-linkedin fa-lg"></i></a>
+          </div>
+        </div>
+
+        <!-- Botão de Edição -->
+        <a href="#" class="w-full block text-center bg-primary text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 transform hover:scale-105">
+          <i class="fas fa-pencil-alt mr-2"></i> Editar Currículo
+        </a>
+
+        <!-- Formação Acadêmica -->
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+          <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Formação</h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="font-semibold text-gray-900">Engenharia da Computação</h3>
+              <p class="text-sm text-gray-600">Universidade de São Paulo (USP)</p>
+              <p class="text-xs text-gray-400">Graduação | 2012 - 2016</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Idiomas -->
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+          <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Idiomas</h2>
+          <div class="space-y-3">
+            <div>
+              <p class="font-semibold text-gray-800">Português <span class="text-sm font-normal text-gray-500 ml-2">- Nativo</span></p>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-800">Inglês <span class="text-sm font-normal text-gray-500 ml-2">- Avançado (C1)</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Coluna Principal (Direita) -->
+    <div class="lg:col-span-3 space-y-8">
+
+      <!-- Resumo -->
+      <div class="bg-white p-6 rounded-lg shadow-sm">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Resumo Profissional</h2>
+        <p class="text-gray-600 leading-relaxed">
+          Engenheira de Software Sênior com 8 anos de experiência na construção de sistemas distribuídos de alta performance. Apaixonada por arquitetura de microserviços, cloud computing e por resolver problemas complexos de negócio com tecnologia.
+        </p>
+      </div>
+
+      <!-- Experiência Profissional -->
+      <div class="bg-white p-6 rounded-lg shadow-sm">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Linha do Tempo Profissional</h2>
+        <div class="relative timeline space-y-10">
+          <!-- Experiência 1 -->
+          <div class="timeline-item relative pl-12">
+            <div class="timeline-icon"><i class="fas fa-briefcase text-xs"></i></div>
+            <h3 class="text-xl font-semibold text-gray-900">Engenheira de Software Sênior</h3>
+            <p class="font-medium text-primary">TechFin Soluções <span class="text-gray-500 font-normal ml-2">| CLT</span></p>
+            <p class="text-sm text-gray-500 mb-4">jan/2020 - o momento</p>
+            <div class="space-y-3">
+              <div class="bg-secondary p-4 rounded-md">
+                <p class="font-semibold text-gray-700">Liderei o desenvolvimento do novo sistema de prevenção a fraudes.</p>
+                <p class="text-sm text-gray-600 mt-1">Aumentamos a detecção de transações fraudulentas em 70% e reduzimos os falsos positivos em 25%, melhorando a segurança e a experiência do usuário.</p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Go (Golang)</span>
+                  <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">gRPC</span>
+                  <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">PostgreSQL</span>
+                  <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Redis</span>
+                  <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Liderança Técnica</span>
+                  <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Mentoria</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Experiência 2 -->
+          <div class="timeline-item relative pl-12">
+            <div class="timeline-icon"><i class="fas fa-briefcase text-xs"></i></div>
+            <h3 class="text-xl font-semibold text-gray-900">Desenvolvedora de Software Pleno</h3>
+            <p class="font-medium text-primary">InovaCode <span class="text-gray-500 font-normal ml-2">| CLT</span></p>
+            <p class="text-sm text-gray-500 mb-4">fev/2017 - dez/2019</p>
+            <div class="space-y-3">
+              <div class="bg-secondary p-4 rounded-md">
+                <p class="font-semibold text-gray-700">Participei da equipe que desenvolveu o aplicativo de e-commerce da empresa.</p>
+                <p class="text-sm text-gray-600 mt-1">Contribuí para a implementação do carrinho de compras e integração com gateways de pagamento, resultando em um aumento de 30% nas vendas via app.</p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Java</span>
+                  <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Spring Boot</span>
+                  <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">MySQL</span>
+                  <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Trabalho em Equipe</span>
+                  <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Scrum</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+
+</body>
+</html>

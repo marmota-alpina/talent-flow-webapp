@@ -1,0 +1,365 @@
+<div class="px-6 py-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-gray-800">Meu Perfil Profissional</h1>
+      <p class="text-gray-600 mt-2">Siga as etapas para que nossa IA possa encontrar as melhores vagas para você.</p>
+    </div>
+
+    <!-- Stepper -->
+    <app-resume-stepper [currentStep]="currentStep" [steps]="steps"></app-resume-stepper>
+
+    <!-- Auto-Save Feedback Indicator -->
+    <div class="h-6 mb-4 text-right text-sm text-gray-500 transition-opacity duration-500" [class.opacity-0]="!showSaveIndicator">
+      Salvo ✓
+    </div>
+
+    <!-- Formulário Principal -->
+    <form [formGroup]="resumeForm" (ngSubmit)="onSubmit()" class="space-y-10">
+
+      <!-- ETAPA 1: Dados Pessoais & Contato -->
+      <fieldset class="form-step" [class.hidden]="currentStep !== 0">
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+          <legend class="text-xl font-semibold text-gray-800 mb-4">Informações de Contato</legend>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+              <input
+                type="text"
+                id="fullName"
+                formControlName="fullName"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                (input)="triggerAutoSave()"
+                required
+              >
+              <div *ngIf="resumeForm.get('fullName')?.invalid && resumeForm.get('fullName')?.touched" class="text-red-500 text-sm mt-1">
+                Nome completo é obrigatório.
+              </div>
+            </div>
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                (input)="triggerAutoSave()"
+                required
+              >
+              <div *ngIf="resumeForm.get('email')?.invalid && resumeForm.get('email')?.touched" class="text-red-500 text-sm mt-1">
+                Email válido é obrigatório.
+              </div>
+            </div>
+            <div>
+              <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone / WhatsApp</label>
+              <input
+                type="tel"
+                id="phone"
+                formControlName="phone"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                (input)="triggerAutoSave()"
+              >
+            </div>
+            <div>
+              <label for="linkedinUrl" class="block text-sm font-medium text-gray-700 mb-1">Perfil LinkedIn</label>
+              <input
+                type="url"
+                id="linkedinUrl"
+                formControlName="linkedinUrl"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                (input)="triggerAutoSave()"
+              >
+            </div>
+          </div>
+          <div class="flex justify-end pt-6">
+            <button
+              type="button"
+              class="bg-primary text-white font-semibold px-8 py-3 rounded-lg hover:bg-opacity-90 transition-colors"
+              [disabled]="isStep1Invalid()"
+              (click)="nextStep()"
+            >
+              Próximo <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ETAPA 2: Perfil Profissional & Formação -->
+      <fieldset class="form-step" [class.hidden]="currentStep !== 1">
+        <div class="bg-white p-6 rounded-lg shadow-sm space-y-8">
+          <div>
+            <legend class="text-xl font-semibold text-gray-800 mb-4">Perfil Profissional</legend>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label for="mainArea" class="block text-sm font-medium text-gray-700 mb-1">Principal Área de Atuação</label>
+                <input
+                  type="text"
+                  id="mainArea"
+                  formControlName="mainArea"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  (input)="triggerAutoSave()"
+                  required
+                >
+                <div *ngIf="resumeForm.get('mainArea')?.invalid && resumeForm.get('mainArea')?.touched" class="text-red-500 text-sm mt-1">
+                  Área de atuação é obrigatória.
+                </div>
+              </div>
+              <div>
+                <label for="experienceLevel" class="block text-sm font-medium text-gray-700 mb-1">Nível de Experiência</label>
+                <select
+                  id="experienceLevel"
+                  formControlName="experienceLevel"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  (change)="triggerAutoSave()"
+                  required
+                >
+                  <option value="">Selecione um nível</option>
+                  <option value="Estagiário">Estagiário</option>
+                  <option value="Júnior">Júnior</option>
+                  <option value="Pleno">Pleno</option>
+                  <option value="Sênior">Sênior</option>
+                  <option value="Especialista">Especialista / Principal</option>
+                </select>
+                <div *ngIf="resumeForm.get('experienceLevel')?.invalid && resumeForm.get('experienceLevel')?.touched" class="text-red-500 text-sm mt-1">
+                  Nível de experiência é obrigatório.
+                </div>
+              </div>
+            </div>
+            <div>
+              <label for="summary" class="block text-sm font-medium text-gray-700 mb-1">Resumo Profissional</label>
+              <textarea
+                id="summary"
+                formControlName="summary"
+                rows="5"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                (input)="triggerAutoSave()"
+                required
+              ></textarea>
+              <div *ngIf="resumeForm.get('summary')?.invalid && resumeForm.get('summary')?.touched" class="text-red-500 text-sm mt-1">
+                Resumo profissional é obrigatório.
+              </div>
+            </div>
+          </div>
+
+          <!-- Formação Acadêmica -->
+          <div class="border-t pt-8" formArrayName="academicFormations">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold text-gray-800">Formação Acadêmica</h3>
+              <button
+                type="button"
+                class="bg-accent text-white font-semibold px-4 py-2 rounded-lg text-sm hover:bg-opacity-90"
+                (click)="addFormation()"
+              >
+                <i class="fas fa-plus mr-2"></i>Adicionar
+              </button>
+            </div>
+
+            <div class="space-y-4">
+              <div
+                *ngFor="let formation of academicFormationsArray.controls; let i = index"
+                [formGroupName]="i"
+                class="flex items-start gap-4"
+              >
+                <div class="flex-grow p-4 border rounded-lg bg-gray-50/50">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label [for]="'level-' + i" class="block text-sm font-medium text-gray-700 mb-1">Nível</label>
+                      <select
+                        [id]="'level-' + i"
+                        formControlName="level"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        (change)="triggerAutoSave()"
+                      >
+                        <option value="">Selecione um nível</option>
+                        <option value="Técnico">Técnico</option>
+                        <option value="Graduação">Graduação</option>
+                        <option value="Pós-graduação">Pós-graduação</option>
+                        <option value="Mestrado">Mestrado</option>
+                        <option value="Doutorado">Doutorado</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label [for]="'courseName-' + i" class="block text-sm font-medium text-gray-700 mb-1">Nome do Curso</label>
+                      <input
+                        type="text"
+                        [id]="'courseName-' + i"
+                        formControlName="courseName"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        (input)="triggerAutoSave()"
+                      >
+                    </div>
+                    <div class="md:col-span-2">
+                      <label [for]="'institution-' + i" class="block text-sm font-medium text-gray-700 mb-1">Instituição</label>
+                      <input
+                        type="text"
+                        [id]="'institution-' + i"
+                        formControlName="institution"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        (input)="triggerAutoSave()"
+                      >
+                    </div>
+                    <div>
+                      <label [for]="'startDate-' + i" class="block text-sm font-medium text-gray-700 mb-1">Data de Início</label>
+                      <input
+                        type="date"
+                        [id]="'startDate-' + i"
+                        formControlName="startDate"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        (change)="triggerAutoSave()"
+                      >
+                    </div>
+                    <div>
+                      <label [for]="'endDate-' + i" class="block text-sm font-medium text-gray-700 mb-1">Data de Término</label>
+                      <input
+                        type="date"
+                        [id]="'endDate-' + i"
+                        formControlName="endDate"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        (change)="triggerAutoSave()"
+                      >
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  title="Excluir Formação"
+                  class="text-gray-400 hover:text-error transition-colors duration-200 flex-shrink-0 mt-4"
+                  (click)="removeFormation(i)"
+                >
+                  <i class="fas fa-trash-can fa-lg"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Idiomas -->
+          <div class="border-t pt-8" formArrayName="languages">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold text-gray-800">Idiomas</h3>
+              <button
+                type="button"
+                class="bg-accent text-white font-semibold px-4 py-2 rounded-lg text-sm hover:bg-opacity-90"
+                (click)="addLanguage()"
+              >
+                <i class="fas fa-plus mr-2"></i>Adicionar
+              </button>
+            </div>
+
+            <div class="space-y-4">
+              <div
+                *ngFor="let language of languagesArray.controls; let i = index"
+                [formGroupName]="i"
+                class="flex items-start gap-4"
+              >
+                <div class="flex-grow p-4 border rounded-lg bg-gray-50/50">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label [for]="'language-' + i" class="block text-sm font-medium text-gray-700 mb-1">Idioma</label>
+                      <select
+                        [id]="'language-' + i"
+                        formControlName="language"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        (change)="triggerAutoSave()"
+                      >
+                        <option value="">Selecione um idioma</option>
+                        <option *ngFor="let lang of languages" [value]="lang.name">{{ lang.name }}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label [for]="'proficiency-' + i" class="block text-sm font-medium text-gray-700 mb-1">Nível</label>
+                      <select
+                        [id]="'proficiency-' + i"
+                        formControlName="proficiency"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        (change)="triggerAutoSave()"
+                      >
+                        <option value="">Selecione um nível</option>
+                        <option value="Básico (A1/A2)">Básico (A1/A2)</option>
+                        <option value="Intermediário (B1/B2)">Intermediário (B1/B2)</option>
+                        <option value="Avançado (C1)">Avançado (C1)</option>
+                        <option value="Fluente (C2)">Fluente (C2)</option>
+                        <option value="Nativo">Nativo</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  title="Excluir Idioma"
+                  class="text-gray-400 hover:text-error transition-colors duration-200 flex-shrink-0 mt-4"
+                  (click)="removeLanguage(i)"
+                >
+                  <i class="fas fa-trash-can fa-lg"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between pt-6">
+            <button
+              type="button"
+              class="bg-gray-200 text-gray-700 font-semibold px-8 py-3 rounded-lg hover:bg-gray-300 transition-colors"
+              (click)="prevStep()"
+            >
+              <i class="fas fa-arrow-left mr-2"></i>Anterior
+            </button>
+            <button
+              type="button"
+              class="bg-primary text-white font-semibold px-8 py-3 rounded-lg hover:bg-opacity-90 transition-colors"
+              [disabled]="isStep2Invalid()"
+              (click)="nextStep()"
+            >
+              Próximo <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ETAPA 3: Experiências Profissionais -->
+      <fieldset class="form-step" [class.hidden]="currentStep !== 2">
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="flex justify-between items-center mb-4">
+            <legend class="text-xl font-semibold text-gray-800">Experiências Profissionais</legend>
+            <button
+              type="button"
+              class="bg-accent text-white font-semibold px-4 py-2 rounded-lg hover:bg-opacity-90"
+              (click)="addExperience()"
+            >
+              <i class="fas fa-plus mr-2"></i>Adicionar Experiência
+            </button>
+          </div>
+
+          <div class="space-y-6" formArrayName="professionalExperiences">
+            <app-experience-form
+              *ngFor="let experience of professionalExperiencesFormGroups; let i = index"
+              [experienceForm]="experience"
+              [formId]="'exp-' + i"
+              (remove)="removeExperience(i)"
+            ></app-experience-form>
+          </div>
+
+          <div class="flex justify-between pt-6 mt-6 border-t">
+            <button
+              type="button"
+              class="bg-gray-200 text-gray-700 font-semibold px-8 py-3 rounded-lg hover:bg-gray-300 transition-colors"
+              (click)="prevStep()"
+            >
+              <i class="fas fa-arrow-left mr-2"></i>Anterior
+            </button>
+            <button
+              type="submit"
+              class="bg-success text-white font-bold px-8 py-3 rounded-lg hover:bg-opacity-90 transition-transform hover:scale-105"
+              [disabled]="resumeForm.invalid || loading"
+            >
+              <ng-container *ngIf="loading; else saveButton">
+                <i class="fas fa-spinner fa-spin mr-2"></i>Salvando...
+              </ng-container>
+              <ng-template #saveButton>
+                <i class="fas fa-check-circle mr-2"></i>Finalizar e Salvar Currículo
+              </ng-template>
+            </button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>

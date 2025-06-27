@@ -73,14 +73,13 @@ export class ResumeEditComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initForm();
+    this.loadResumeData();
     this.loadLanguages();
   }
 
   loadLanguages(): void {
     const languagesSub = this.languagesService.getAll().subscribe(languages => {
       this.languages = languages;
-      // Load resume data after languages are loaded
-      this.loadResumeData();
     });
     this.subscriptions.push(languagesSub);
   }

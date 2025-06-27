@@ -202,3 +202,230 @@ A interação entre esses modelos é a chave para a eficiência do sistema.
     c.  O sistema cria o documento `CandidateApplication`, armazenando o `ID` do **snapshot existente**.
 
 Este fluxo garante que a base de dados não terá snapshots duplicados e idênticos, otimizando custos e mantendo a integridade histórica de cada aplicação.
+
+## Análise de Experiência do Usuário (UX) - Protótipo de Cadastro de Currículo
+
+O protótipo atual (docs/examples/html/resume.html) é um excelente ponto de partida visual e funcional. A análise a seguir tem como objetivo refinar a experiência para maximizar a taxa de conclusão do cadastro, reduzir a frustração do usuário e garantir a qualidade dos dados coletados.
+
+1. Pontos Fortes (O que já está funcionando bem)
+   Fluxo em Etapas (Wizard): A divisão do formulário em três passos ("Pessoal", "Perfil", "Experiência") é a maior força do layout. Isso reduz a carga cognitiva inicial, fazendo com que a tarefa de preencher o currículo pareça menos intimidadora. O usuário foca em um contexto por vez.
+
+Feedback Visual Claro: O stepper no topo da página é um ótimo indicador de progresso. A mudança de cor (cinza -> azul -> verde) e de ícone (número -> check) comunica claramente onde o usuário está, por onde já passou e o que ainda falta.
+
+Ações e Hierarquia Visual: A página tem uma hierarquia visual bem definida. Títulos, seções e botões são facilmente distinguíveis. O uso de cores de destaque (accent e primary) para ações principais (+ Adicionar, "Próximo") orienta o usuário de forma eficaz.
+
+Flexibilidade com Conteúdo Dinâmico: A capacidade de adicionar e remover seções como "Formação" e "Experiência" é essencial e foi bem implementada no protótipo, dando ao usuário o controle sobre a estrutura do seu próprio currículo.
+
+2. Pontos de Melhoria (Onde podemos refinar a UX)
+   A principal área para melhoria está na gestão da carga cognitiva e do esforço exigido do usuário, especialmente na seção de "Experiências Profissionais".
+
+Carga Cognitiva Elevada na Seção de Experiência:
+
+Problema: A seção "Atividades Realizadas" dentro de cada experiência pede quatro informações detalhadas de uma só vez (atividade, problema resolvido, tecnologias, soft skills). Isso pode ser exaustivo e desmotivador, especialmente para candidatos com muitas experiências. O usuário pode se sentir sobrecarregado e abandonar o cadastro nesta etapa.
+
+Impacto: Alta chance de abandono do formulário. A qualidade das informações também pode cair, com usuários preenchendo os campos de forma genérica apenas para avançar.
+
+Entrada de Dados Propensa a Erros (Tecnologias e Soft Skills):
+
+Problema: Pedir para o usuário listar tecnologias e habilidades separadas por vírgula é um método frágil. Gera dados inconsistentes (ex: "Java", "java", "Java 8") e uma experiência de digitação pobre.
+
+Impacto: Dificulta a busca e a filtragem de dados para a IA do matching e pode frustrar o usuário que não sabe qual formato usar.
+
+Falta de Sensação de Progresso e Segurança:
+
+Problema: Formulários longos geram o medo de "perder todo o meu trabalho". Embora seja um protótipo, a interface não comunica que os dados estão seguros. Não há feedback de salvamento automático.
+
+Impacto: O usuário pode hesitar em preencher muitas informações de uma vez, temendo perder o progresso se a página for fechada ou ocorrer um erro.
+
+3. Sugestões de Ajustes (Recomendações Práticas)
+   Com base nos pontos acima, sugiro os seguintes ajustes para refinar a experiência antes de iniciar o desenvolvimento em Angular:
+
+Sugestão 1: Simplificar a Seção de "Experiência Profissional" (Reduzir Carga Cognitiva)
+
+Em vez de um grande bloco de textarea, podemos quebrar a adição de atividades em um processo mais guiado.
+
+Passo A: O usuário adiciona a experiência com os dados principais (Cargo, Empresa, Datas).
+
+Passo B: Dentro do card da experiência, o botão "+ Adicionar Atividade" abriria um pequeno modal ou um formulário inline focado em apenas uma atividade por vez.
+
+Resultado: Isso transforma uma tarefa grande e assustadora em pequenas vitórias, mantendo o usuário engajado.
+
+Sugestão 2: Usar um Componente de "Tags" para Habilidades e Tecnologias
+
+Substituir o campo de texto livre por um campo de input de tags.
+
+Como Funciona: O usuário digita uma tecnologia (ex: "Java") e aperta "Enter" ou "vírgula". A palavra se transforma em uma tag visualmente distinta. O sistema pode, no futuro, até sugerir tecnologias à medida que o usuário digita.
+
+Vantagens:
+
+Para o Usuário: Experiência mais interativa e organizada.
+
+Para o Sistema: Garante dados limpos e consistentes, perfeitos para a IA.
+
+Sugestão 3: Implementar Micro-interações e Feedback Constante
+
+Auto-Save Feedback: Adicionar um pequeno texto "Salvo automaticamente ✓" que aparece discretamente após o usuário parar de digitar em um campo. No protótipo, podemos simular isso com um setTimeout.
+
+Reordenar Itens: Permitir que o usuário reordene suas experiências ou formações usando ícones de seta (▲/▼) ou uma funcionalidade de arrastar e soltar (drag-and-drop). Isso dá mais controle e flexibilidade.
+
+Animações Sutis: Adicionar transições suaves quando novos itens são adicionados ou removidos da lista, tornando a interface mais fluida e profissional.
+
+Conclusão e Próximos Passos
+O formato atual é um excelente protótipo visual e estrutural. A base com o wizard é sólida e deve ser mantida.
+
+Recomendação: Devemos seguir com este formato, mas incorporando as sugestões de UX antes da implementação final. A prioridade máxima seria repensar a seção de Experiências e a entrada de Habilidades/Tecnologias, pois são os pontos com maior risco de causar o abandono do formulário.
+
+Ao fazer esses ajustes, o formulário se tornará não apenas funcional, mas também uma ferramenta que motiva o usuário a fornecer informações completas e de alta qualidade, o que é essencial para o sucesso da plataforma.
+
+## Arquitetura de Componentes Angular para o Formulário de Currículo
+Com base no protótipo validado, esta é a arquitetura de componentes recomendada para a implementação em Angular. A estrutura foca na separação de responsabilidades, reutilização e escalabilidade, utilizando o ReactiveFormsModule para o gerenciamento do estado do formulário e as mais recentes práticas do Angular para performance.
+
+Diretrizes de Implementação Moderna (Angular 17+)
+Esta arquitetura segue um conjunto de regras estritas para garantir a máxima performance e manutenibilidade em um ambiente moderno.
+
+Arquitetura Standalone: Todos os componentes devem ser declarados com standalone: true. Cada componente gerenciará suas próprias dependências (como ReactiveFormsModule ou outros componentes) através do array imports em seu decorador @Component. Não haverá NgModules para esta feature.
+
+Novo Control Flow (@): O uso das diretivas estruturais antigas como *ngIf e *ngFor não é permitido. Deve-se utilizar exclusivamente a nova sintaxe de built-in control flow (@if, @for, @switch).
+
+Aplicação Zoneless: O projeto é configurado para rodar sem zone.js. Isso significa que a detecção de mudanças automática do Angular não está presente. A reatividade da UI deve ser garantida através de outros mecanismos.
+
+Reatividade com Signals: Para lidar com a ausência do zone.js, o estado dos componentes deve ser gerenciado preferencialmente com Angular Signals. Propriedades que mudam e devem refletir na UI (como currentStep ou listas dinâmicas) devem ser declaradas como signal(). Isso garante que o Angular saiba exatamente o que atualizar na tela e quando.
+
+Change Detection OnPush: Todos os componentes devem usar changeDetection: ChangeDetectionStrategy.OnPush para otimizar a performance, garantindo que a detecção de mudanças só ocorra quando os @Input() do componente mudarem ou quando um evento do próprio componente for disparado. Esta estratégia funciona de forma nativa e ideal com Signals.
+
+Estrutura Geral de Diretórios
+A organização dos arquivos dentro de src/app/features/resume/ seria a seguinte:
+
+resume/
+|-- components/
+|   |-- resume-stepper/
+|   |-- tag-input/
+|   |-- experience-form/
+|
+|-- resume-edit/
+|   |-- resume-edit.component.ts
+|   |-- resume-edit.component.html
+|
+|-- resume.routes.ts
+
+Descrição Detalhada dos Componentes
+1. ResumeEditComponent (Componente Principal)
+   Responsabilidades:
+
+Criar o FormGroup principal e os FormArray para as seções dinâmicas.
+
+Controlar a etapa ativa do formulário usando um signal (ex: currentStep = signal(0)).
+
+Conter a lógica de navegação (nextStep(), prevStep()) que atualiza o signal da etapa.
+
+Injetar o ResumeService (serviço principal) para carregar e salvar os dados do currículo.
+
+Injetar os serviços de curadoria para popular campos de seleção (ex: selects para Nível de Experiência, ou auto-complete para Tecnologias).
+
+Orquestrar a validação geral do formulário.
+
+Implementação Técnica:
+
+standalone: true.
+
+imports: [ResumeStepperComponent, ExperienceFormComponent, ReactiveFormsModule, ...].
+
+changeDetection: ChangeDetectionStrategy.OnPush.
+
+O template usará @switch (currentStep()) para renderizar o fieldset da etapa correta.
+
+Para as listas dinâmicas, o template usará @for (experienceGroup of experiences().controls; track experienceGroup).
+
+Injeção de Dependências: A injeção dos serviços será feita diretamente na declaração das propriedades, utilizando a função inject() do Angular, que é ideal para componentes standalone.
+
+// Exemplo de injeção de dependências no ResumeEditComponent
+private resumeService = inject(ResumeService);
+
+// Injeção dos serviços de curadoria específicos
+private experienceLevelsService = inject(ExperienceLevelsService);
+private professionalAreasService = inject(ProfessionalAreasService);
+private technologiesService = inject(TechnologiesService);
+private languagesService = inject(LanguagesService);
+private softSkillsService = inject(SoftSkillsService);
+
+2. ResumeStepperComponent (Componente de Etapas)
+   Responsabilidades:
+
+Apenas renderizar visualmente o progresso, sem lógica de negócio.
+
+Inputs (@Input()):
+
+currentStep: number: Recebe o valor do signal do componente pai.
+
+steps: string[]: Um array com os nomes das etapas.
+
+Implementação Técnica:
+
+standalone: true.
+
+changeDetection: ChangeDetectionStrategy.OnPush.
+
+A lógica interna para aplicar classes CSS (active, completed) será baseada na comparação com o @Input() currentStep.
+
+3. ExperienceFormComponent (Sub-formulário de Experiência)
+   Responsabilidades:
+
+Renderizar os campos de uma única experiência.
+
+Gerenciar o sub-formulário de "Atividades Realizadas".
+
+Inputs (@Input()):
+
+experienceForm: FormGroup: Recebe o FormGroup de uma experiência.
+
+Outputs (@Output()):
+
+remove: EventEmitter<void>: Emite um evento quando a exclusão é solicitada.
+
+Implementação Técnica:
+
+standalone: true.
+
+imports: [TagInputComponent, ReactiveFormsModule, ...].
+
+changeDetection: ChangeDetectionStrategy.OnPush.
+
+O template usará @for para iterar sobre o FormArray das atividades.
+
+4. TagInputComponent (Componente de Tags - Custom Form Control)
+   Responsabilidades:
+
+Gerenciar uma lista de strings (tags).
+
+Prover a UI para adicionar e remover tags.
+
+Implementação:
+
+standalone: true.
+
+changeDetection: ChangeDetectionStrategy.OnPush.
+
+Implementará a interface ControlValueAccessor para se integrar ao ReactiveFormsModule.
+
+Seu estado interno (a lista de tags) será gerenciado por um signal.
+
+Inputs (@Input()):
+
+placeholder: string.
+
+Fluxo de Dados e Interação (com Signals)
+O ResumeEditComponent é carregado. Ele cria o FormGroup e inicializa o signal do passo: currentStep = signal(0).
+
+O template do ResumeEditComponent lê o valor do signal (currentStep()) e passa para o ResumeStepperComponent. O bloco @switch também reage a esta mudança, exibindo a seção correta.
+
+O laço @for no template do ResumeEditComponent itera sobre os controles do FormArray de experiências e renderiza um <app-experience-form> para cada um.
+
+Quando o usuário clica no botão "Próximo", o método nextStep() é chamado no ResumeEditComponent, que executa this.currentStep.set(1).
+
+Magia dos Signals: A atualização do signal automaticamente notifica todas as partes do template que o utilizam (@switch, ResumeStepperComponent), que se atualizam de forma otimizada, sem a necessidade do zone.js.
+
+Quando o usuário digita uma tag no TagInputComponent, o ControlValueAccessor notifica o FormControl da mudança. O FormGroup principal é atualizado, e o estado permanece consistente.
+
+Quando o usuário clica para remover uma experiência, o ExperienceFormComponent emite o evento remove. O ResumeEditComponent executa o método removeAt() no FormArray, e a reatividade do laço @for remove o componente da tela.
+
+Essa abordagem não só adere às restrições do projeto, mas também cria uma base extremamente performática e alinhada com o futuro do desenvolvimento em Angular.

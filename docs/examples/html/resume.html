@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Protótipo Otimizado | Cadastro de Currículo - Talent Flow</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome via CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Configuração de Fontes e Cores do Tema -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#2563EB",
+            "secondary": "#F3F4F6",
+            "accent": "#14B8A6",
+            "error": "#EF4444",
+            "success": "#10B981",
+          },
+          fontFamily: {
+            inter: ["Inter", "sans-serif"],
+            sans: ["Inter", "sans-serif"],
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            fadeOut: {
+              '0%': { opacity: '1' },
+              '100%': { opacity: '0' },
+            },
+            modalIn: {
+              '0%': { opacity: '0', transform: 'scale(0.95)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
+            }
+          },
+          animation: {
+            fadeIn: 'fadeIn 0.5s ease-out forwards',
+            fadeOut: 'fadeOut 0.5s ease-out forwards',
+            modalIn: 'modalIn 0.3s ease-out forwards',
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .step-item.active .step-circle {
+      background-color: #2563EB;
+      color: white;
+      border-color: #2563EB;
+    }
+    .step-item.active .step-label { color: #2563EB; font-weight: 600; }
+    .step-connector.active { border-color: #2563EB; }
+    .tag {
+      transition: all 0.2s ease-in-out;
+    }
+    .form-step, .dynamic-item {
+      animation: fadeIn 0.4s ease-in-out;
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-secondary">
+
+<!-- Header -->
+<header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
+    <div class="flex items-center gap-8">
+      <div class="text-2xl font-bold text-primary">Talent Flow</div>
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="#" class="text-gray-500 font-medium hover:text-primary transition-colors">Vagas</a>
+        <a href="#" class="text-primary font-bold border-b-2 border-primary pb-1">Meu Currículo</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="hidden sm:inline font-semibold text-gray-700 text-sm">Ana Beatriz Silva</span>
+      <img class="w-10 h-10 rounded-full border-2 border-primary" src="https://i.pravatar.cc/150?u=anabeatriz" alt="Foto do Perfil">
+    </div>
+  </div>
+</header>
+
+<main class="px-6 py-8">
+  <div class="max-w-4xl mx-auto">
+
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-gray-800">Meu Perfil Profissional</h1>
+      <p class="text-gray-600 mt-2">Siga as etapas para que nossa IA possa encontrar as melhores vagas para você.</p>
+    </div>
+
+    <!-- Stepper -->
+    <div id="stepper" class="mb-10 p-4 bg-white rounded-lg shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="step-item text-center" data-step="0">
+          <div class="relative mb-2"><div class="step-circle w-10 h-10 mx-auto bg-white border-2 border-gray-200 rounded-full text-lg flex items-center justify-center transition-all duration-300">1</div></div>
+          <div class="step-label text-xs text-gray-500 font-semibold transition-all duration-300">Pessoal</div>
+        </div>
+        <div class="step-connector flex-auto border-t-2 border-gray-200 transition-all duration-300"></div>
+        <div class="step-item text-center" data-step="1">
+          <div class="relative mb-2"><div class="step-circle w-10 h-10 mx-auto bg-white border-2 border-gray-200 rounded-full text-lg flex items-center justify-center transition-all duration-300">2</div></div>
+          <div class="step-label text-xs text-gray-500 font-semibold transition-all duration-300">Perfil</div>
+        </div>
+        <div class="step-connector flex-auto border-t-2 border-gray-200 transition-all duration-300"></div>
+        <div class="step-item text-center" data-step="2">
+          <div class="relative mb-2"><div class="step-circle w-10 h-10 mx-auto bg-white border-2 border-gray-200 rounded-full text-lg flex items-center justify-center transition-all duration-300">3</div></div>
+          <div class="step-label text-xs text-gray-500 font-semibold transition-all duration-300">Experiência</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auto-Save Feedback Indicator -->
+    <div id="autosave-feedback" class="h-6 mb-4 text-right text-sm text-gray-500 transition-opacity duration-500 opacity-0">Salvo ✓</div>
+
+    <!-- Formulário Principal -->
+    <form id="resume-form" class="space-y-10">
+
+      <!-- ETAPA 1: Dados Pessoais & Contato -->
+      <fieldset class="form-step" data-step="0">
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+          <legend class="text-xl font-semibold text-gray-800 mb-4">Informações de Contato</legend>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+              <input type="text" id="fullName" value="Ana Beatriz Silva" class="autosave-trigger w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+            </div>
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input type="email" id="email" value="ana.silva@exemplo.com" class="autosave-trigger w-full px-4 py-2 border border-gray-300 rounded-lg" required>
+            </div>
+            <div>
+              <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone / WhatsApp</label>
+              <input type="tel" id="phone" value="(11) 99999-8888" class="autosave-trigger w-full px-4 py-2 border border-gray-300 rounded-lg">
+            </div>
+            <div>
+              <label for="linkedinUrl" class="block text-sm font-medium text-gray-700 mb-1">Perfil LinkedIn</label>
+              <input type="url" id="linkedinUrl" value="https://linkedin.com/in/anabeatrizsilva" class="autosave-trigger w-full px-4 py-2 border border-gray-300 rounded-lg">
+            </div>
+          </div>
+          <div class="flex justify-end pt-6">
+            <button type="button" class="next-btn bg-primary text-white font-semibold px-8 py-3 rounded-lg hover:bg-opacity-90 transition-colors">Próximo <i class="fas fa-arrow-right ml-2"></i></button>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ETAPA 2: Perfil Profissional & Formação -->
+      <fieldset class="form-step hidden" data-step="1">
+        <div class="bg-white p-6 rounded-lg shadow-sm space-y-8">
+          <div>
+            <legend class="text-xl font-semibold text-gray-800 mb-4">Perfil Profissional</legend>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label for="mainArea" class="block text-sm font-medium text-gray-700 mb-1">Principal Área de Atuação</label>
+                <input type="text" id="mainArea" value="Desenvolvimento de Software" class="autosave-trigger w-full px-4 py-2 border border-gray-300 rounded-lg">
+              </div>
+              <div>
+                <label for="experienceLevel" class="block text-sm font-medium text-gray-700 mb-1">Nível de Experiência</label>
+                <select id="experienceLevel" class="autosave-trigger w-full px-4 py-2 border border-gray-300 rounded-lg">
+                  <option>Estagiário</option><option>Júnior</option><option>Pleno</option><option selected>Sênior</option><option>Especialista / Principal</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="summary" class="block text-sm font-medium text-gray-700 mb-1">Resumo Profissional</label>
+              <textarea id="summary" rows="5" class="autosave-trigger w-full px-4 py-2 border border-gray-300 rounded-lg">Engenheira de Software Sênior com 8 anos de experiência na construção de sistemas distribuídos de alta performance. Apaixonada por arquitetura de microserviços, cloud computing e por resolver problemas complexos de negócio com tecnologia.</textarea>
+            </div>
+          </div>
+          <div class="border-t pt-8">
+            <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold text-gray-800">Formação Acadêmica</h3><button type="button" id="add-formation" class="bg-accent text-white font-semibold px-4 py-2 rounded-lg text-sm hover:bg-opacity-90"><i class="fas fa-plus mr-2"></i>Adicionar</button></div>
+            <div id="formation-list" class="space-y-4"></div>
+          </div>
+          <div class="border-t pt-8">
+            <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold text-gray-800">Idiomas</h3><button type="button" id="add-language" class="bg-accent text-white font-semibold px-4 py-2 rounded-lg text-sm hover:bg-opacity-90"><i class="fas fa-plus mr-2"></i>Adicionar</button></div>
+            <div id="language-list" class="space-y-4"></div>
+          </div>
+          <div class="flex justify-between pt-6">
+            <button type="button" class="prev-btn bg-gray-200 text-gray-700 font-semibold px-8 py-3 rounded-lg hover:bg-gray-300 transition-colors"><i class="fas fa-arrow-left mr-2"></i>Anterior</button>
+            <button type="button" class="next-btn bg-primary text-white font-semibold px-8 py-3 rounded-lg hover:bg-opacity-90 transition-colors">Próximo <i class="fas fa-arrow-right ml-2"></i></button>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ETAPA 3: Experiências Profissionais -->
+      <fieldset class="form-step hidden" data-step="2">
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="flex justify-between items-center mb-4"><legend class="text-xl font-semibold text-gray-800">Experiências Profissionais</legend><button type="button" id="add-experience" class="bg-accent text-white font-semibold px-4 py-2 rounded-lg hover:bg-opacity-90"><i class="fas fa-plus mr-2"></i>Adicionar Experiência</button></div>
+          <div id="experience-list" class="space-y-6"></div>
+          <div class="flex justify-between pt-6 mt-6 border-t"><button type="button" class="prev-btn bg-gray-200 text-gray-700 font-semibold px-8 py-3 rounded-lg hover:bg-gray-300 transition-colors"><i class="fas fa-arrow-left mr-2"></i>Anterior</button><button type="submit" class="bg-success text-white font-bold px-8 py-3 rounded-lg hover:bg-opacity-90 transition-transform hover:scale-105"><i class="fas fa-check-circle mr-2"></i>Finalizar e Salvar Currículo</button></div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</main>
+
+<!-- Modal JSON -->
+<div id="json-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-lg shadow-2xl w-11/12 max-w-2xl max-h-[90vh] flex flex-col animate-modalIn">
+    <div class="flex justify-between items-center p-4 border-b"><h3 class="text-lg font-bold text-gray-800">Dados do Currículo (JSON)</h3><button id="close-modal-btn" class="text-gray-500 hover:text-red-600 text-2xl">&times;</button></div>
+    <div class="p-6 overflow-y-auto"><pre id="json-output" class="bg-gray-900 text-white text-sm rounded-md p-4 overflow-x-auto"></pre></div>
+  </div>
+</div>
+
+<!-- Templates -->
+<template id="formation-template"><div class="dynamic-item formation-item flex items-start gap-4"><div class="flex-grow p-4 border rounded-lg bg-gray-50/50 "><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><select data-key="level" class="w-full px-4 py-2 border border-gray-300 rounded-lg"><option>Técnico</option><option>Graduação</option><option>Pós-graduação</option><option>Mestrado</option><option>Doutorado</option></select><input type="text" data-key="courseName" placeholder="Nome do Curso" class="w-full px-4 py-2 border border-gray-300 rounded-lg"><input type="text" data-key="institution" placeholder="Instituição" class="md:col-span-2 w-full px-4 py-2 border border-gray-300 rounded-lg"><div><label class="text-xs text-gray-500">Data de Início</label><input type="date" data-key="startDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div><div><label class="text-xs text-gray-500">Data de Término</label><input type="date" data-key="endDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div></div></div><button type="button" title="Excluir Formação" class="remove-btn text-gray-400 hover:text-error transition-colors duration-200 flex-shrink-0 mt-4"><i class="fas fa-trash-can fa-lg"></i></button></div></template>
+<template id="language-template"><div class="dynamic-item language-item flex items-start gap-4"><div class="flex-grow p-4 border rounded-lg bg-gray-50/50"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="text" data-key="language" placeholder="Idioma (Ex: Inglês)" class="w-full px-4 py-2 border border-gray-300 rounded-lg"><select data-key="proficiency" class="w-full px-4 py-2 border border-gray-300 rounded-lg"><option>Básico (A1/A2)</option><option>Intermediário (B1/B2)</option><option>Avançado (C1)</option><option>Fluente (C2)</option><option>Nativo</option></select></div></div><button type="button" title="Excluir Idioma" class="remove-btn text-gray-400 hover:text-error transition-colors duration-200 flex-shrink-0 mt-4"><i class="fas fa-trash-can fa-lg"></i></button></div></template>
+<template id="experience-template"><div class="dynamic-item experience-item flex items-start gap-4"><div class="flex-grow p-4 border-2 rounded-lg bg-white"><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><input type="text" data-key="role" placeholder="Cargo Ocupado" class="w-full px-4 py-2 border border-gray-300 rounded-lg"><input type="text" data-key="companyName" placeholder="Nome da Empresa" class="w-full px-4 py-2 border border-gray-300 rounded-lg"><select data-key="experienceType" class="w-full px-4 py-2 border border-gray-300 rounded-lg"><option>CLT</option><option>PJ</option><option>Freelance</option><option>Estágio</option></select><div class="flex items-center gap-2"><input type="checkbox" data-key="isCurrent" class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"><label class="text-sm font-medium text-gray-700">Trabalho Atual</label></div><div><label class="text-xs text-gray-500">Data de Início</label><input type="date" data-key="startDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div><div><label class="text-xs text-gray-500">Data de Término</label><input type="date" data-key="endDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div></div><div class="border-t pt-4"><div class="flex justify-between items-center mb-3"><h4 class="font-semibold text-gray-700">Atividades Realizadas</h4><button type="button" class="add-activity-btn bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-md hover:bg-blue-600"><i class="fas fa-plus"></i></button></div><div class="activities-list space-y-3"></div></div></div><button type="button" title="Excluir Experiência" class="remove-btn text-gray-400 hover:text-error transition-colors duration-200 flex-shrink-0 mt-4"><i class="fas fa-trash-can fa-lg"></i></button></div></template>
+<template id="activity-template"><div class="dynamic-item activity-item p-3 border rounded-md bg-gray-50"><div class="space-y-3"><textarea data-key="activity" placeholder="Principal atividade ou projeto" class="w-full text-sm px-3 py-1 border border-gray-300 rounded-md" rows="2"></textarea><textarea data-key="problemSolved" placeholder="Problema resolvido e resultados alcançados" class="w-full text-sm px-3 py-1 border border-gray-300 rounded-md" rows="3"></textarea><div class="tag-input-container" data-key="technologies"></div><div class="tag-input-container" data-key="appliedSoftSkills"></div></div><button type="button" title="Excluir Atividade" class="remove-btn text-gray-400 hover:text-error transition-colors duration-200 w-full text-center p-1 mt-2 text-xs font-semibold"><i class="fas fa-trash-can mr-1"></i>Remover Atividade</button></div></template>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // --- Lógica do Wizard/Stepper ---
+    const steps = document.querySelectorAll('.form-step');
+    const stepperItems = document.querySelectorAll('.step-item');
+    const stepperConnectors = document.querySelectorAll('.step-connector');
+    let currentStep = 0;
+
+    const updateStepper = () => {
+      stepperItems.forEach((item, index) => {
+        const circle = item.querySelector('.step-circle');
+        const label = item.querySelector('.step-label');
+        item.classList.remove('active');
+        label.classList.remove('text-success', 'text-primary', 'font-bold');
+        label.classList.add('text-gray-500');
+        circle.classList.remove('bg-primary', 'border-primary', 'bg-success', 'border-success', 'text-white');
+        circle.classList.add('bg-white', 'border-gray-200');
+        circle.innerHTML = index + 1;
+        if (index < currentStep) {
+          circle.innerHTML = `<i class="fas fa-check"></i>`;
+          circle.classList.remove('bg-white', 'border-gray-200');
+          circle.classList.add('bg-success', 'border-success', 'text-white');
+          label.classList.add('text-success', 'font-semibold');
+        }
+      });
+      const activeItem = stepperItems[currentStep];
+      if (activeItem) {
+        activeItem.classList.add('active');
+        activeItem.querySelector('.step-label').classList.add('font-bold');
+      }
+      stepperConnectors.forEach((connector, index) => {
+        connector.classList.toggle('active', index < currentStep);
+      });
+    };
+
+    const showStep = (stepIndex) => {
+      steps.forEach(step => step.classList.add('hidden'));
+      const targetStep = document.querySelector(`.form-step[data-step="${stepIndex}"]`);
+      if(targetStep) {
+        targetStep.classList.remove('hidden');
+      }
+      updateStepper();
+    };
+
+    document.querySelectorAll('.next-btn').forEach(btn => btn.addEventListener('click', () => { if (currentStep < steps.length - 1) { currentStep++; showStep(currentStep); }}));
+    document.querySelectorAll('.prev-btn').forEach(btn => btn.addEventListener('click', () => { if (currentStep > 0) { currentStep--; showStep(currentStep); }}));
+
+    // --- Lógica para Adicionar/Remover Itens Dinâmicos ---
+    const setupDynamicList = (addButtonId, listContainerId, templateId, onAddCallback) => {
+      document.getElementById(addButtonId).addEventListener('click', () => {
+        const template = document.getElementById(templateId).content.cloneNode(true);
+        const newItem = template.querySelector('.dynamic-item');
+        newItem.querySelector('.remove-btn').addEventListener('click', (e) => e.currentTarget.closest('.dynamic-item').remove());
+        document.getElementById(listContainerId).appendChild(newItem);
+        if (onAddCallback) onAddCallback(newItem);
+      });
+    };
+
+    // --- Componente de Input de Tags (NOVA VERSÃO) ---
+    const createTagInput = (container) => {
+      const key = container.dataset.key;
+      const placeholder = key === 'technologies' ? 'Adicionar tecnologia...' : 'Adicionar soft skill...';
+      let tags = [];
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'w-full flex flex-wrap items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg bg-white';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = placeholder;
+      input.className = 'flex-grow bg-transparent border-none outline-none text-sm';
+
+      wrapper.appendChild(input);
+      container.appendChild(wrapper);
+
+      wrapper.addEventListener('click', () => input.focus());
+
+      const renderTags = () => {
+        // Remove all existing tags before rendering
+        wrapper.querySelectorAll('.tag').forEach(t => t.remove());
+
+        tags.forEach((tag, index) => {
+          const tagEl = document.createElement('span');
+          tagEl.className = 'tag bg-primary/10 text-primary text-sm font-semibold px-2.5 py-1 rounded-md flex items-center gap-2 whitespace-nowrap';
+          tagEl.innerHTML = `<span>${tag}</span><button type="button" data-index="${index}" class="remove-tag-btn text-primary/70 hover:text-primary font-bold">&times;</button>`;
+          wrapper.insertBefore(tagEl, input);
+        });
+      };
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && input.value.trim()) {
+          e.preventDefault();
+          tags.push(input.value.trim());
+          input.value = '';
+          renderTags();
+        } else if (e.key === 'Backspace' && input.value === '' && tags.length > 0) {
+          tags.pop();
+          renderTags();
+        }
+      });
+
+      wrapper.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-tag-btn')) {
+          e.stopPropagation(); // prevent wrapper click from firing
+          tags.splice(e.target.dataset.index, 1);
+          renderTags();
+        }
+      });
+
+      container.getTags = () => tags;
+      container.setTags = (initialTags) => {
+        tags = initialTags;
+        renderTags();
+      }
+    };
+
+
+    // --- Lógica para Atividades ---
+    const setupActivityList = (experienceItem) => {
+      experienceItem.querySelector('.add-activity-btn').addEventListener('click', () => {
+        const template = document.getElementById('activity-template').content.cloneNode(true);
+        const newActivity = template.querySelector('.activity-item');
+        newActivity.querySelector('.remove-btn').addEventListener('click', (e) => e.currentTarget.closest('.activity-item').remove());
+        experienceItem.querySelector('.activities-list').appendChild(newActivity);
+        newActivity.querySelectorAll('.tag-input-container').forEach(createTagInput);
+      });
+    };
+
+    setupDynamicList('add-formation', 'formation-list', 'formation-template');
+    setupDynamicList('add-language', 'language-list', 'language-template');
+    setupDynamicList('add-experience', 'experience-list', 'experience-template', setupActivityList);
+
+    // --- Auto-Save Feedback ---
+    let saveTimeout;
+    document.querySelectorAll('.autosave-trigger').forEach(input => {
+      input.addEventListener('input', () => {
+        const feedbackEl = document.getElementById('autosave-feedback');
+        clearTimeout(saveTimeout);
+        feedbackEl.classList.add('opacity-100');
+        saveTimeout = setTimeout(() => {
+          feedbackEl.classList.remove('opacity-100');
+        }, 2000);
+      });
+    });
+
+    // --- Pré-Preenchimento do Formulário ---
+    const populateForm = () => {
+      document.getElementById('add-formation').click();
+      const fItem = document.querySelector('.formation-item');
+      fItem.querySelector('[data-key="level"]').value = "Graduação";
+      fItem.querySelector('[data-key="courseName"]').value = "Engenharia da Computação";
+      fItem.querySelector('[data-key="institution"]').value = "Universidade de São Paulo (USP)";
+      fItem.querySelector('[data-key="startDate"]').value = "2012-02-01";
+      fItem.querySelector('[data-key="endDate"]').value = "2016-12-15";
+
+      document.getElementById('add-language').click();
+      document.getElementById('add-language').click();
+      const lItems = document.querySelectorAll('.language-item');
+      lItems[0].querySelector('[data-key="language"]').value = "Português";
+      lItems[0].querySelector('[data-key="proficiency"]').value = "Nativo";
+      lItems[1].querySelector('[data-key="language"]').value = "Inglês";
+      lItems[1].querySelector('[data-key="proficiency"]').value = "Avançado (C1)";
+
+      document.getElementById('add-experience').click();
+      document.getElementById('add-experience').click();
+      const eItems = document.querySelectorAll('.experience-item');
+
+      // Exp 1
+      eItems[0].querySelector('[data-key="role"]').value = "Engenheira de Software Sênior";
+      eItems[0].querySelector('[data-key="companyName"]').value = "TechFin Soluções";
+      eItems[0].querySelector('[data-key="isCurrent"]').checked = true;
+      eItems[0].querySelector('.add-activity-btn').click();
+      const act1 = eItems[0].querySelector('.activity-item');
+      act1.querySelector('[data-key="activity"]').value = "Liderei o desenvolvimento do novo sistema de prevenção a fraudes.";
+      act1.querySelector('[data-key="problemSolved"]').value = "Aumentamos a detecção de transações fraudulentas em 70% e reduzimos os falsos positivos em 25%.";
+      act1.querySelector('[data-key="technologies"]').setTags(["Go (Golang)", "gRPC", "PostgreSQL", "Redis", "Grafana"]);
+      act1.querySelector('[data-key="appliedSoftSkills"]').setTags(["Liderança Técnica", "Tomada de Decisão", "Mentoria"]);
+
+      // Exp 2
+      eItems[1].querySelector('[data-key="role"]').value = "Desenvolvedora de Software Pleno";
+      eItems[1].querySelector('[data-key="companyName"]').value = "InovaCode";
+      eItems[1].querySelector('[data-key="startDate"]').value = "2017-02-01";
+      eItems[1].querySelector('[data-key="endDate"]').value = "2019-12-20";
+      eItems[1].querySelector('.add-activity-btn').click();
+      const act2 = eItems[1].querySelector('.activity-item');
+      act2.querySelector('[data-key="activity"]').value = "Participei da equipe que desenvolveu o aplicativo de e-commerce da empresa.";
+      act2.querySelector('[data-key="problemSolved"]').value = "Contribuí para a implementação do carrinho de compras e integração com gateways de pagamento.";
+      act2.querySelector('[data-key="technologies"]').setTags(["Java", "Spring Boot", "MySQL", "AWS S3"]);
+      act2.querySelector('[data-key="appliedSoftSkills"]').setTags(["Trabalho em Equipe", "Scrum"]);
+    };
+
+    // --- Coleta de Dados e Submissão ---
+    document.getElementById('resume-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const getFieldValue = (el, key) => el.querySelector(`[data-key="${key}"]`).value;
+      const getCheckboxValue = (el, key) => el.querySelector(`[data-key="${key}"]`).checked;
+      const getListValues = (selector) => Array.from(document.querySelectorAll(selector)).map(item => {
+        const data = {};
+        item.querySelectorAll('[data-key]').forEach(field => {
+          if (field.classList.contains('tag-input-container')) {
+            data[field.dataset.key] = field.getTags();
+          } else if (field.type === 'checkbox') {
+            data[field.dataset.key] = field.checked;
+          } else {
+            data[field.dataset.key] = field.value || null;
+          }
+        });
+        return data;
+      });
+      const resumeData = {
+        userId: "firebase_user_id_1",
+        status: "published",
+        fullName: document.getElementById('fullName').value, email: document.getElementById('email').value, phone: document.getElementById('phone').value, linkedinUrl: document.getElementById('linkedinUrl').value,
+        mainArea: document.getElementById('mainArea').value, experienceLevel: document.getElementById('experienceLevel').value, summary: document.getElementById('summary').value,
+        academicFormations: getListValues('.formation-item .flex-grow'),
+        languages: getListValues('.language-item .flex-grow'),
+        professionalExperiences: Array.from(document.querySelectorAll('.experience-item')).map(exp => ({
+          role: getFieldValue(exp, 'role'),
+          companyName: getFieldValue(exp, 'companyName'),
+          experienceType: getFieldValue(exp, 'experienceType'),
+          isCurrent: getCheckboxValue(exp, 'isCurrent'),
+          startDate: getFieldValue(exp, 'startDate'),
+          endDate: getCheckboxValue(exp, 'isCurrent') ? null : getFieldValue(exp, 'endDate'),
+          activitiesPerformed: Array.from(exp.querySelectorAll('.activity-item')).map(act => {
+            const activityData = {};
+            act.querySelectorAll('[data-key]').forEach(field => {
+              if (field.classList.contains('tag-input-container')) {
+                activityData[field.dataset.key] = field.getTags();
+              } else {
+                activityData[field.dataset.key] = field.value || null;
+              }
+            });
+            return activityData;
+          })
+        })),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      document.getElementById('json-output').textContent = JSON.stringify(resumeData, null, 2);
+      document.getElementById('json-modal').classList.remove('hidden');
+    });
+
+    document.getElementById('close-modal-btn').addEventListener('click', () => document.getElementById('json-modal').classList.add('hidden'));
+
+    populateForm();
+    showStep(currentStep);
+  });
+</script>
+
+</body>
+</html>

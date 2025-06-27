@@ -34,7 +34,7 @@ export const routes: Routes = [
       {
         path: 'meu-curriculo',
         loadChildren: () => import('./features/resume/resume.routes').then(m => m.resumeRoutes),
-        canActivate: [roleGuard(['candidate'])]
+        canActivate: [roleGuard(['candidate','recruiter','admin'])]
       },
       {
         path: 'vagas',
