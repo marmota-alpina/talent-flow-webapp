@@ -146,7 +146,8 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
                         >
                       </div>
 
-                      <div *ngIf="showTechnologySuggestions" class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-200 max-h-60 overflow-y-auto technology-suggestions">
+                      <div *ngIf="showTechnologySuggestions" class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-200 max-h-60 overflow-y-auto technology-suggestions"
+                           (mousedown)="$event.preventDefault()"> <!-- Prevent blur when clicking on suggestions -->
                         <div
                           *ngFor="let tech of filteredTechnologies; let techIndex = index"
                           class="px-4 py-2 hover:bg-gray-100 cursor-pointer technology-suggestion-item"
@@ -209,6 +210,7 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
   filteredTechnologies: Technology[] = [];
   showTechnologySuggestions = false;
   selectedTechnologyIndex = -1;
+  isUsingKeyboardNavigation = false; // Track if user is using keyboard navigation
   technologyInput = new FormControl('');
 
   ngOnInit(): void {
@@ -244,23 +246,43 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
   filterTechnologies(value: string): Observable<Technology[]> {
     const filterValue = value.toLowerCase();
 
-    if (!filterValue) {
+    // If using keyboard navigation and we have at least 1 character, or if we have 2+ characters
+    // show filtered results
+    if (filterValue.length === 0) {
       return of([]);
     }
 
-    return of(this.technologies.filter(tech =>
-      tech.name.toLowerCase().includes(filterValue)
-    ));
+    // If using keyboard navigation or we have 2+ characters, show filtered results
+    if (this.isUsingKeyboardNavigation || filterValue.length >= 2) {
+      return of(this.technologies.filter(tech =>
+        tech.name.toLowerCase().includes(filterValue)
+      ));
+    }
+
+    // Otherwise, don't show results yet (wait for 2+ characters)
+    return of([]);
   }
 
   // Handle focus on technology input
   onTechnologyInputFocus(activityIndex: number): void {
     const value = this.technologyInput.value || '';
-    if (value) {
+
+    // Show suggestions if:
+    // 1. Using keyboard navigation and there's any input value, or
+    // 2. There's input value with at least 2 characters
+    if ((this.isUsingKeyboardNavigation && value) || (value && value.length >= 2)) {
       this.filterTechnologies(value).subscribe(technologies => {
         this.filteredTechnologies = technologies;
         this.showTechnologySuggestions = technologies.length > 0;
         this.selectedTechnologyIndex = -1; // Reset selection on focus
+
+        // Ensure input maintains focus
+        setTimeout(() => {
+          const inputElement = document.querySelector('.technology-input') as HTMLElement;
+          if (inputElement) {
+            inputElement.focus();
+          }
+        }, 0);
       });
     }
   }
@@ -285,13 +307,58 @@ export class ExperienceFormComponent implements OnInit, OnDestroy {
 
   // Hide technology suggestions
   hideTechnologySuggestions(): void {
+    // Don't hide if user is using keyboard navigation
+    if (this.isUsingKeyboardNavigation) {
+      return;
+    }
+
+    // Store a reference to the current input value
+    const currentValue = this.technologyInput.value;
+
+    // Use a longer timeout to give users more time to make a selection
     setTimeout(() => {
-      this.showTechnologySuggestions = false;
-    }, 200);
+      // Only hide suggestions if:
+      // 1. User is not using keyboard navigation, AND
+      // 2. The input value hasn't changed (user isn't typing)
+      if (!this.isUsingKeyboardNavigation && this.technologyInput.value === currentValue) {
+        this.showTechnologySuggestions = false;
+      }
+    }, 2000); // Increased timeout from 1000ms to 2000ms
   }
 
   // Handle keyboard navigation in the suggestions dropdown
   onTechnologyKeydown(event: KeyboardEvent, activityIndex: number): void {
+    // Set keyboard navigation flag for navigation keys
+    if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End'].includes(event.key)) {
+      this.isUsingKeyboardNavigation = true;
+
+      // Reset the flag after a longer delay to allow for continuous navigation
+      setTimeout(() => {
+        this.isUsingKeyboardNavigation = false;
+      }, 5000); // Increased from 2000ms to 5000ms
+    }
+
+    // If suggestions are not visible but we have input and arrow keys are pressed, show suggestions
+    if (!this.showTechnologySuggestions && this.technologyInput.value) {
+      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp'].includes(event.key)) {
+        // Force show suggestions when using keyboard navigation
+        this.onTechnologyInputFocus(activityIndex);
+
+        // If we still don't have suggestions visible after focus, try to show them directly
+        if (!this.showTechnologySuggestions && this.technologyInput.value) {
+          const value = this.technologyInput.value;
+          this.filterTechnologies(value).subscribe(technologies => {
+            this.filteredTechnologies = technologies;
+            this.showTechnologySuggestions = technologies.length > 0;
+            this.selectedTechnologyIndex = 0; // Select the first item
+          });
+        }
+
+        event.preventDefault();
+        return;
+      }
+    }
+
     // Only handle keyboard navigation when suggestions are visible
     if (!this.showTechnologySuggestions || this.filteredTechnologies.length === 0) {
       // If suggestions are not visible but Enter is pressed, try to add the current input value
