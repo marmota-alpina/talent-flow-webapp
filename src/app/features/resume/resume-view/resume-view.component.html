@@ -1,0 +1,184 @@
+<main class="px-4 py-10 md:px-6 md:py-12 bg-secondary min-h-screen">
+  <!-- Loading State -->
+  @if (loading) {
+    <div class="max-w-6xl mx-auto flex items-center justify-center py-12">
+      <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
+        <p class="text-gray-600">Carregando currículo...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error) {
+    <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
+      <div class="text-center py-8">
+        <div class="text-error text-5xl mb-4">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Erro ao carregar currículo</h2>
+        <p class="text-gray-600 mb-6">Não foi possível carregar os dados do seu currículo. Por favor, tente novamente mais tarde.</p>
+        <button
+          (click)="loadResume()"
+          class="bg-primary text-white font-semibold px-6 py-2 rounded-lg hover:bg-opacity-90 transition-colors">
+          <i class="fas fa-sync-alt mr-2"></i>Tentar Novamente
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading && !error && !resume) {
+    <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-sm">
+      <div class="text-center py-8">
+        <div class="text-primary text-5xl mb-4">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">Nenhum currículo encontrado</h2>
+        <p class="text-gray-600 mb-6">Você ainda não criou seu currículo. Comece agora mesmo!</p>
+        <a
+          routerLink="/meu-curriculo/editar"
+          class="bg-primary text-white font-semibold px-6 py-2 rounded-lg hover:bg-opacity-90 transition-colors">
+          <i class="fas fa-plus mr-2"></i>Criar Currículo
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- Resume Content -->
+  @if (!loading && !error && resume) {
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+      <!-- Coluna Lateral (Esquerda) -->
+      <aside class="lg:col-span-1 space-y-8">
+        <div class="sticky top-28 space-y-8">
+          <!-- Card de Perfil -->
+          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div class="w-24 h-24 rounded-full border-4 border-primary mx-auto mb-4 bg-gray-200 flex items-center justify-center text-gray-400">
+              <i class="fas fa-user-circle text-4xl"></i>
+            </div>
+            <h1 class="text-xl font-bold text-gray-900">{{ resume.fullName }}</h1>
+            <p class="text-sm font-medium text-primary">{{ resume.mainArea }}</p>
+            <div class="mt-4 flex justify-center gap-4 text-gray-500">
+              @if (resume.email) {
+                <a [href]="'mailto:' + resume.email" title="Enviar Email" class="hover:text-primary">
+                  <i class="fas fa-envelope fa-lg"></i>
+                </a>
+              }
+              @if (resume.linkedinUrl) {
+                <a [href]="resume.linkedinUrl" target="_blank" title="Ver Perfil no LinkedIn" class="hover:text-primary">
+                  <i class="fab fa-linkedin fa-lg"></i>
+                </a>
+              }
+            </div>
+          </div>
+
+          <!-- Botão de Edição -->
+          <a routerLink="/meu-curriculo/editar" class="w-full block text-center bg-primary text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 transform hover:scale-105">
+            <i class="fas fa-pencil-alt mr-2"></i> Editar Currículo
+          </a>
+
+          <!-- Formação Acadêmica -->
+          @if (resume.academicFormations && resume.academicFormations.length > 0) {
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+              <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Formação</h2>
+              <div class="space-y-4">
+                @for (formation of resume.academicFormations; track formation.courseName) {
+                  <div>
+                    <h3 class="font-semibold text-gray-900">{{ formation.courseName }}</h3>
+                    <p class="text-sm text-gray-600">{{ formation.institution }}</p>
+                    <p class="text-xs text-gray-400">
+                      {{ formation.level }} |
+                      {{ formatDate(formation.startDate) }} -
+                      {{ formation.endDate ? formatDate(formation.endDate) : 'o momento' }}
+                    </p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Idiomas -->
+          @if (resume.languages && resume.languages.length > 0) {
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+              <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Idiomas</h2>
+              <div class="space-y-3">
+                @for (lang of resume.languages; track lang.language) {
+                  <div>
+                    <p class="font-semibold text-gray-800">
+                      {{ lang.language }}
+                      <span class="text-sm font-normal text-gray-500 ml-2">- {{ lang.proficiency }}</span>
+                    </p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </aside>
+
+      <!-- Coluna Principal (Direita) -->
+      <div class="lg:col-span-3 space-y-8">
+
+        <!-- Resumo -->
+        @if (resume.summary) {
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">Resumo Profissional</h2>
+            <p class="text-gray-600 leading-relaxed">
+              {{ resume.summary }}
+            </p>
+          </div>
+        }
+
+        <!-- Experiência Profissional -->
+        @if (resume.professionalExperiences && resume.professionalExperiences.length > 0) {
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Linha do Tempo Profissional</h2>
+            <div class="relative timeline space-y-10">
+              @for (exp of resume.professionalExperiences; track exp.companyName + exp.role; let i = $index) {
+                <div class="timeline-item relative pl-12">
+                  <div class="timeline-icon"><i class="fas fa-briefcase text-xs"></i></div>
+                  <h3 class="text-xl font-semibold text-gray-900">{{ exp.role }}</h3>
+                  <p class="font-medium text-primary">
+                    {{ exp.companyName }}
+                    <span class="text-gray-500 font-normal ml-2">| {{ exp.experienceType }}</span>
+                  </p>
+                  <p class="text-sm text-gray-500 mb-4">
+                    {{ formatDate(exp.startDate) }} - {{ exp.isCurrent ? 'o momento' : formatDate(exp.endDate) }}
+                  </p>
+
+                  <div class="space-y-3">
+                    @for (activity of exp.activitiesPerformed; track activity.activity; let actIndex = $index) {
+                      <div class="bg-secondary p-4 rounded-md">
+                        <p class="font-semibold text-gray-700">{{ activity.activity }}</p>
+                        @if (activity.problemSolved) {
+                          <p class="text-sm text-gray-600 mt-1">{{ activity.problemSolved }}</p>
+                        }
+
+                        @if (activity.technologies && activity.technologies.length > 0) {
+                          <div class="mt-3 flex flex-wrap gap-2">
+                            @for (tech of activity.technologies; track tech) {
+                              <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ tech }}</span>
+                            }
+                          </div>
+                        }
+
+                        @if (activity.appliedSoftSkills && activity.appliedSoftSkills.length > 0) {
+                          <div class="mt-2 flex flex-wrap gap-2">
+                            @for (skill of activity.appliedSoftSkills; track skill) {
+                              <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ skill }}</span>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</main>
