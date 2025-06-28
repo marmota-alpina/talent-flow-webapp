@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, finalize } from 'rxjs';
 
 import { ResumeService } from '../../../core/services/resume.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -44,6 +44,8 @@ import { Resume } from '../../../models/resume.model';
 export class ResumeViewComponent implements OnInit, OnDestroy {
   private resumeService = inject(ResumeService);
   private authService = inject(AuthService);
+  private ngZone = inject(NgZone);
+  private cdr = inject(ChangeDetectorRef);
   private subscription = new Subscription();
 
   resume: Resume | null = null;
@@ -62,17 +64,44 @@ export class ResumeViewComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = false;
 
-    const sub = this.resumeService.getCurrentUserResume().subscribe({
-      next: (resume) => {
-        this.resume = resume;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error loading resume:', err);
-        this.error = true;
-        this.loading = false;
+    // Add a safety timeout to ensure loading state is updated even if there's a delay
+    const safetyTimeout = setTimeout(() => {
+      if (this.loading) {
+        this.ngZone.run(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+          console.log('Safety timeout triggered: forcing loading state to false');
+        });
       }
-    });
+    }, 5000); // 5 seconds timeout
+
+    const sub = this.resumeService.getCurrentUserResume()
+      .pipe(
+        finalize(() => {
+          // Clear the safety timeout when the observable completes or errors
+          clearTimeout(safetyTimeout);
+        })
+      )
+      .subscribe({
+        next: (resume) => {
+          this.ngZone.run(() => {
+            this.resume = resume;
+            this.loading = false;
+            // Force change detection
+            this.cdr.detectChanges();
+            console.log('Resume loaded successfully');
+          });
+        },
+        error: (err) => {
+          this.ngZone.run(() => {
+            console.error('Error loading resume:', err);
+            this.error = true;
+            this.loading = false;
+            // Force change detection
+            this.cdr.detectChanges();
+          });
+        }
+      });
 
     this.subscription.add(sub);
   }
