@@ -68,7 +68,7 @@ export class ResumeEditComponent implements OnInit, OnDestroy {
   loading = false;
   showSaveIndicator = false;
   languages: LanguageModel[] = [];
-  private autoSaveTimeout: NodeJS.Timeout | undefined;
+  private autoSaveTimeout: ReturnType<typeof setTimeout> | undefined;
   private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {

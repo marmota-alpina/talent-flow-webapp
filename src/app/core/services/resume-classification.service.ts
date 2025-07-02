@@ -3,6 +3,64 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Resume } from '../../models/resume.model';
 
+// Define interfaces for date handling
+interface FirestoreTimestamp {
+  toDate: () => Date;
+}
+
+interface FirestoreTimestampSeconds {
+  seconds: number;
+  nanoseconds: number;
+}
+
+type DateLike = Date | FirestoreTimestamp | FirestoreTimestampSeconds | string;
+
+// Define interfaces for processed resume data
+interface ProcessedAcademicFormation {
+  level: string;
+  courseName: string;
+  institution: string;
+  startDate: string | null;
+  endDate: string | null;
+}
+
+interface ProcessedActivity {
+  activity: string;
+  problemSolved?: string;
+  technologies?: string[];
+  appliedSoftSkills?: string[];
+}
+
+interface ProcessedExperience {
+  experienceType: string;
+  companyName: string;
+  role: string;
+  startDate: string | null;
+  endDate: string | null;
+  isCurrent: boolean;
+  activitiesPerformed: ProcessedActivity[];
+}
+
+interface ProcessedResume {
+  userId: string;
+  status: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  linkedinUrl?: string;
+  mainArea: string;
+  experienceLevel: string;
+  summary: string;
+  academicFormations: ProcessedAcademicFormation[];
+  languages: {
+    language: string;
+    proficiency: string;
+  }[];
+  professionalExperiences: ProcessedExperience[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ResumeClassificationResponse {
   userId: string;
   predictedExperienceLevel: 'Júnior' | 'Pleno' | 'Sênior' | 'Especialista';
@@ -33,41 +91,31 @@ export class ResumeClassificationService {
    * @param resume The original resume object
    * @returns A processed copy of the resume with correctly formatted dates
    */
-  private processResumeForApi(resume: Resume): any {
+  private processResumeForApi(resume: Resume): ProcessedResume {
     // Create a deep copy of the resume
-    const processedResume = JSON.parse(JSON.stringify(resume));
+    const processedResume = JSON.parse(JSON.stringify(resume)) as ProcessedResume;
 
     // Process academic formations
     if (processedResume.academicFormations && processedResume.academicFormations.length > 0) {
-      processedResume.academicFormations = processedResume.academicFormations.map((formation: any) => {
-        // Convert startDate to string format
-        if (formation.startDate) {
-          formation.startDate = this.formatDateToString(formation.startDate);
-        }
-
-        // Convert endDate to string format if it exists
-        if (formation.endDate) {
-          formation.endDate = this.formatDateToString(formation.endDate);
-        }
-
-        return formation;
+      processedResume.academicFormations = processedResume.academicFormations.map((formation) => {
+        const processedFormation: ProcessedAcademicFormation = {
+          ...formation,
+          startDate: formation.startDate ? this.formatDateToString(formation.startDate) : null,
+          endDate: formation.endDate ? this.formatDateToString(formation.endDate) : null
+        };
+        return processedFormation;
       });
     }
 
     // Process professional experiences
     if (processedResume.professionalExperiences && processedResume.professionalExperiences.length > 0) {
-      processedResume.professionalExperiences = processedResume.professionalExperiences.map((experience: any) => {
-        // Convert startDate to ISO string format
-        if (experience.startDate) {
-          experience.startDate = this.formatDateToISOString(experience.startDate);
-        }
-
-        // Convert endDate to ISO string format if it exists
-        if (experience.endDate) {
-          experience.endDate = this.formatDateToISOString(experience.endDate);
-        }
-
-        return experience;
+      processedResume.professionalExperiences = processedResume.professionalExperiences.map((experience) => {
+        const processedExperience: ProcessedExperience = {
+          ...experience,
+          startDate: experience.startDate ? this.formatDateToISOString(experience.startDate) : null,
+          endDate: experience.endDate ? this.formatDateToISOString(experience.endDate) : null
+        };
+        return processedExperience;
       });
     }
 
@@ -79,7 +127,7 @@ export class ResumeClassificationService {
    * @param date The date to format
    * @returns A formatted date string
    */
-  private formatDateToString(date: any): string {
+  private formatDateToString(date: DateLike): string {
     if (!date) return '';
 
     try {
@@ -89,10 +137,11 @@ export class ResumeClassificationService {
         jsDate = date;
       } else if (typeof date === 'object' && 'toDate' in date && typeof date.toDate === 'function') {
         // Handle Firestore Timestamp
-        jsDate = date.toDate();
+        jsDate = (date as FirestoreTimestamp).toDate();
       } else if (typeof date === 'object' && 'seconds' in date && 'nanoseconds' in date) {
         // Handle Firestore Timestamp in a different format
-        jsDate = new Date(date.seconds * 1000 + date.nanoseconds / 1000000);
+        const timestampData = date as FirestoreTimestampSeconds;
+        jsDate = new Date(timestampData.seconds * 1000 + timestampData.nanoseconds / 1000000);
       } else {
         // Handle string format
         jsDate = new Date(date as string);
@@ -115,7 +164,7 @@ export class ResumeClassificationService {
    * @param date The date to format
    * @returns A formatted date ISO string
    */
-  private formatDateToISOString(date: any): string {
+  private formatDateToISOString(date: DateLike): string {
     if (!date) return '';
 
     try {
@@ -125,10 +174,11 @@ export class ResumeClassificationService {
         jsDate = date;
       } else if (typeof date === 'object' && 'toDate' in date && typeof date.toDate === 'function') {
         // Handle Firestore Timestamp
-        jsDate = date.toDate();
+        jsDate = (date as FirestoreTimestamp).toDate();
       } else if (typeof date === 'object' && 'seconds' in date && 'nanoseconds' in date) {
         // Handle Firestore Timestamp in a different format
-        jsDate = new Date(date.seconds * 1000 + date.nanoseconds / 1000000);
+        const timestampData = date as FirestoreTimestampSeconds;
+        jsDate = new Date(timestampData.seconds * 1000 + timestampData.nanoseconds / 1000000);
       } else {
         // Handle string format
         jsDate = new Date(date as string);
