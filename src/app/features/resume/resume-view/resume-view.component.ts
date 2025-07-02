@@ -5,6 +5,7 @@ import { Subscription, finalize } from 'rxjs';
 
 import { ResumeService } from '../../../core/services/resume.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ResumeClassificationService, ResumeClassificationResponse } from '../../../core/services/resume-classification.service';
 import { Resume } from '../../../models/resume.model';
 
 /**
@@ -44,6 +45,7 @@ import { Resume } from '../../../models/resume.model';
 export class ResumeViewComponent implements OnInit, OnDestroy {
   private resumeService = inject(ResumeService);
   private authService = inject(AuthService);
+  private resumeClassificationService = inject(ResumeClassificationService);
   private ngZone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
   private subscription = new Subscription();
@@ -51,6 +53,11 @@ export class ResumeViewComponent implements OnInit, OnDestroy {
   resume: Resume | null = null;
   loading = true;
   error = false;
+
+  // Classification properties
+  classification: ResumeClassificationResponse | null = null;
+  classificationLoading = false;
+  classificationError = false;
 
   ngOnInit(): void {
     this.loadResume();
@@ -90,6 +97,11 @@ export class ResumeViewComponent implements OnInit, OnDestroy {
             // Force change detection
             this.cdr.detectChanges();
             console.log('Resume loaded successfully');
+
+            // Classify the resume if it exists
+            if (resume) {
+              this.classifyResume(resume);
+            }
           });
         },
         error: (err) => {
@@ -104,6 +116,53 @@ export class ResumeViewComponent implements OnInit, OnDestroy {
       });
 
     this.subscription.add(sub);
+  }
+
+  /**
+   * Classifies the resume using the classification API
+   * @param resume The resume to classify
+   */
+  classifyResume(resume: Resume): void {
+    this.classificationLoading = true;
+    this.classificationError = false;
+
+    const sub = this.resumeClassificationService.classifyResume(resume)
+      .subscribe({
+        next: (response) => {
+          this.ngZone.run(() => {
+            this.classification = response;
+            this.classificationLoading = false;
+            this.cdr.detectChanges();
+            console.log('Resume classified successfully:', response);
+          });
+        },
+        error: (err) => {
+          this.ngZone.run(() => {
+            console.error('Error classifying resume:', err);
+            this.classificationError = true;
+            this.classificationLoading = false;
+            this.cdr.detectChanges();
+          });
+        }
+      });
+
+    this.subscription.add(sub);
+  }
+
+  /**
+   * Gets the number of stars to display based on the experience level
+   * @returns The number of stars (1-4)
+   */
+  getStarsCount(): number {
+    if (!this.classification) return 0;
+
+    switch (this.classification.predictedExperienceLevel) {
+      case 'Júnior': return 1;
+      case 'Pleno': return 2;
+      case 'Sênior': return 3;
+      case 'Especialista': return 4;
+      default: return 0;
+    }
   }
 
   /**
